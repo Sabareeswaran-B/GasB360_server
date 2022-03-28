@@ -32,20 +32,31 @@ namespace GasB360_server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TblFilledProduct>> GetTblFilledProduct(Guid id)
         {
-            var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
-
-            if (tblFilledProduct == null)
+            try
             {
-                return NotFound();
-            }
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
 
-            return tblFilledProduct;
+                if (tblFilledProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return tblFilledProduct;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/FilledProduct/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblFilledProduct(Guid id, TblFilledProduct tblFilledProduct)
+        public async Task<IActionResult> PutTblFilledProduct(
+            Guid id,
+            TblFilledProduct tblFilledProduct
+        )
         {
             if (id != tblFilledProduct.FilledProductId)
             {
@@ -58,7 +69,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblFilledProductExists(id))
                 {
@@ -66,7 +77,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
@@ -76,28 +88,50 @@ namespace GasB360_server.Controllers
         // POST: api/FilledProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblFilledProduct>> PostTblFilledProduct(TblFilledProduct tblFilledProduct)
+        public async Task<ActionResult<TblFilledProduct>> PostTblFilledProduct(
+            TblFilledProduct tblFilledProduct
+        )
         {
-            _context.TblFilledProducts.Add(tblFilledProduct);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblFilledProducts.Add(tblFilledProduct);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblFilledProduct", new { id = tblFilledProduct.FilledProductId }, tblFilledProduct);
+                return CreatedAtAction(
+                    "GetTblFilledProduct",
+                    new { id = tblFilledProduct.FilledProductId },
+                    tblFilledProduct
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/FilledProduct/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblFilledProduct(Guid id)
         {
-            var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
-            if (tblFilledProduct == null)
+            try
             {
-                return NotFound();
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
+                if (tblFilledProduct == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblFilledProducts.Remove(tblFilledProduct);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.TblFilledProducts.Remove(tblFilledProduct);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool TblFilledProductExists(Guid id)
