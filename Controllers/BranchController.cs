@@ -25,21 +25,37 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblBranch>>> GetTblBranches()
         {
-            return await _context.TblBranches.ToListAsync();
+            try
+            {
+                return await _context.TblBranches.ToListAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Branch/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblBranch>> GetTblBranch(Guid id)
         {
-            var tblBranch = await _context.TblBranches.FindAsync(id);
-
-            if (tblBranch == null)
+            try
             {
-                return NotFound();
-            }
+                var tblBranch = await _context.TblBranches.FindAsync(id);
 
-            return tblBranch;
+                if (tblBranch == null)
+                {
+                    return NotFound();
+                }
+
+                return tblBranch;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/Branch/5
@@ -52,13 +68,12 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblBranch).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(tblBranch).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblBranchExists(id))
                 {
@@ -66,7 +81,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
@@ -78,26 +94,42 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblBranch>> PostTblBranch(TblBranch tblBranch)
         {
-            _context.TblBranches.Add(tblBranch);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblBranches.Add(tblBranch);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblBranch", new { id = tblBranch.BranchId }, tblBranch);
+                return CreatedAtAction("GetTblBranch", new { id = tblBranch.BranchId }, tblBranch);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/Branch/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblBranch(Guid id)
         {
-            var tblBranch = await _context.TblBranches.FindAsync(id);
-            if (tblBranch == null)
+            try
             {
-                return NotFound();
+                var tblBranch = await _context.TblBranches.FindAsync(id);
+                if (tblBranch == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblBranches.Remove(tblBranch);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.TblBranches.Remove(tblBranch);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool TblBranchExists(Guid id)
