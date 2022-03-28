@@ -25,21 +25,37 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblEmployee>>> GetTblEmployees()
         {
-            return await _context.TblEmployees.ToListAsync();
+            try
+            {
+                return await _context.TblEmployees.ToListAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Employee/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblEmployee>> GetTblEmployee(Guid id)
         {
-            var tblEmployee = await _context.TblEmployees.FindAsync(id);
-
-            if (tblEmployee == null)
+            try
             {
-                return NotFound();
-            }
+                var tblEmployee = await _context.TblEmployees.FindAsync(id);
 
-            return tblEmployee;
+                if (tblEmployee == null)
+                {
+                    return NotFound();
+                }
+
+                return tblEmployee;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/Employee/5
@@ -52,13 +68,12 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblEmployee).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblEmployeeExists(id))
                 {
@@ -66,7 +81,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
@@ -81,23 +96,35 @@ namespace GasB360_server.Controllers
             _context.TblEmployees.Add(tblEmployee);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblEmployee", new { id = tblEmployee.EmployeeId }, tblEmployee);
+            return CreatedAtAction(
+                "GetTblEmployee",
+                new { id = tblEmployee.EmployeeId },
+                tblEmployee
+            );
         }
 
         // DELETE: api/Employee/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblEmployee(Guid id)
         {
-            var tblEmployee = await _context.TblEmployees.FindAsync(id);
-            if (tblEmployee == null)
+            try
             {
-                return NotFound();
+                var tblEmployee = await _context.TblEmployees.FindAsync(id);
+                if (tblEmployee == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblEmployees.Remove(tblEmployee);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.TblEmployees.Remove(tblEmployee);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool TblEmployeeExists(Guid id)
