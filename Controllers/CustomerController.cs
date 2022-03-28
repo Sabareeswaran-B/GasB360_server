@@ -25,21 +25,37 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblCustomer>>> GetTblCustomers()
         {
-            return await _context.TblCustomers.ToListAsync();
+            try
+            {
+                return await _context.TblCustomers.ToListAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Customer/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblCustomer>> GetTblCustomer(Guid id)
         {
-            var tblCustomer = await _context.TblCustomers.FindAsync(id);
-
-            if (tblCustomer == null)
+            try
             {
-                return NotFound();
-            }
+                var tblCustomer = await _context.TblCustomers.FindAsync(id);
 
-            return tblCustomer;
+                if (tblCustomer == null)
+                {
+                    return NotFound();
+                }
+
+                return tblCustomer;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/Customer/5
@@ -52,13 +68,12 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblCustomer).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblCustomerExists(id))
                 {
@@ -66,7 +81,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
@@ -78,26 +93,46 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblCustomer>> PostTblCustomer(TblCustomer tblCustomer)
         {
-            _context.TblCustomers.Add(tblCustomer);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblCustomers.Add(tblCustomer);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblCustomer", new { id = tblCustomer.CustomerId }, tblCustomer);
+                return CreatedAtAction(
+                    "GetTblCustomer",
+                    new { id = tblCustomer.CustomerId },
+                    tblCustomer
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/Customer/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblCustomer(Guid id)
         {
-            var tblCustomer = await _context.TblCustomers.FindAsync(id);
-            if (tblCustomer == null)
+            try
             {
-                return NotFound();
+                var tblCustomer = await _context.TblCustomers.FindAsync(id);
+                if (tblCustomer == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblCustomers.Remove(tblCustomer);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.TblCustomers.Remove(tblCustomer);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool TblCustomerExists(Guid id)
