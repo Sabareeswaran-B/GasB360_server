@@ -25,14 +25,26 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblOrder>>> GetTblOrders()
         {
-            return await _context.TblOrders.ToListAsync();
+            // return await _context.TblOrders.ToListAsync();
+             try
+           {
+               return await _context.TblOrders.ToListAsync();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Order GET request Failed",message = ex.Message});
+           }
         }
 
         // GET: api/Order/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblOrder>> GetTblOrder(Guid id)
         {
-            var tblOrder = await _context.TblOrders.FindAsync(id);
+           
+              try
+           {
+                var tblOrder = await _context.TblOrders.FindAsync(id);
 
             if (tblOrder == null)
             {
@@ -40,6 +52,12 @@ namespace GasB360_server.Controllers
             }
 
             return tblOrder;
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Order GET BY ID request Failed",message = ex.Message});
+           }
         }
 
         // PUT: api/Order/5
@@ -78,17 +96,28 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblOrder>> PostTblOrder(TblOrder tblOrder)
         {
-            _context.TblOrders.Add(tblOrder);
+              try
+           {
+                _context.TblOrders.Add(tblOrder);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTblOrder", new { id = tblOrder.OrderId }, tblOrder);
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Order POST request Failed",message = ex.Message});
+           }
         }
 
         // DELETE: api/Order/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblOrder(Guid id)
         {
-            var tblOrder = await _context.TblOrders.FindAsync(id);
+           
+            try
+           {
+               var tblOrder = await _context.TblOrders.FindAsync(id);
             if (tblOrder == null)
             {
                 return NotFound();
@@ -98,6 +127,12 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Order DELETE request Failed",message = ex.Message});
+           }
         }
 
         private bool TblOrderExists(Guid id)
