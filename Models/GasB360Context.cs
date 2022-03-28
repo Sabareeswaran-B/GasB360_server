@@ -132,6 +132,10 @@ namespace GasB360_server.Models
                     .HasColumnName("active")
                     .HasDefaultValueSql("('true')");
 
+                entity.Property(e => e.AllowedLimit)
+                    .HasColumnName("allowed_limit")
+                    .HasDefaultValueSql("((1))");
+
                 entity.Property(e => e.CustomerConnection)
                     .HasColumnName("customer_connection")
                     .HasDefaultValueSql("((0))");
@@ -152,6 +156,12 @@ namespace GasB360_server.Models
                 entity.Property(e => e.Password)
                     .IsUnicode(false)
                     .HasColumnName("password");
+
+                entity.Property(e => e.Requested)
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
+                    .HasColumnName("requested")
+                    .HasDefaultValueSql("('false')");
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
 
