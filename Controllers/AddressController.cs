@@ -25,21 +25,37 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblAddress>>> GetTblAddresses()
         {
-            return await _context.TblAddresses.ToListAsync();
+            try
+            {
+                return await _context.TblAddresses.ToListAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Address/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblAddress>> GetTblAddress(Guid id)
         {
-            var tblAddress = await _context.TblAddresses.FindAsync(id);
-
-            if (tblAddress == null)
+            try
             {
-                return NotFound();
-            }
+                var tblAddress = await _context.TblAddresses.FindAsync(id);
 
-            return tblAddress;
+                if (tblAddress == null)
+                {
+                    return NotFound();
+                }
+
+                return tblAddress;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/Address/5
@@ -58,7 +74,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblAddressExists(id))
                 {
@@ -66,7 +82,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
@@ -78,26 +95,46 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblAddress>> PostTblAddress(TblAddress tblAddress)
         {
-            _context.TblAddresses.Add(tblAddress);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblAddresses.Add(tblAddress);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblAddress", new { id = tblAddress.AddressId }, tblAddress);
+                return CreatedAtAction(
+                    "GetTblAddress",
+                    new { id = tblAddress.AddressId },
+                    tblAddress
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/Address/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblAddress(Guid id)
         {
-            var tblAddress = await _context.TblAddresses.FindAsync(id);
-            if (tblAddress == null)
+            try
             {
-                return NotFound();
+                var tblAddress = await _context.TblAddresses.FindAsync(id);
+                if (tblAddress == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblAddresses.Remove(tblAddress);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.TblAddresses.Remove(tblAddress);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool TblAddressExists(Guid id)
