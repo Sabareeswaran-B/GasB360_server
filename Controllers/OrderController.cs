@@ -76,7 +76,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblOrderExists(id))
                 {
@@ -84,7 +84,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(new{status="Order POST or PUT request Failed",message = ex.Message});
                 }
             }
 
