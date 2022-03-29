@@ -4,6 +4,7 @@ using GasB360_server.Services;
 using GasB360_server.Helpers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using GasB360_server.Models;
 
 namespace GasB360_server.Helpers;
 
@@ -48,8 +49,9 @@ public class JwtHelperCustomer
 
             var jwtToken = (JwtSecurityToken)validateToken;
             var userID = Guid.Parse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")!.Value);
+            var customer = customerService.GetById(userID);
 
-            context.Items["customer"] = customerService.GetById(userID);
+            context.Items["user"] = new AuthResponse(customer.CustomerId, customer.Role!.RoleType!, "");
         }
         catch (System.Exception ex)
         {
