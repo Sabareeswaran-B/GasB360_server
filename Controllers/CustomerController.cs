@@ -96,10 +96,19 @@ namespace GasB360_server.Controllers
                 tblCustomer.Password = hashPassword;
                 _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var customer = await _context.TblCustomers.FindAsync(id);
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update customer successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
-                if (!TblCustomerExists(id))
+                if (!IsCustomerExists(id))
                 {
                     return NotFound();
                 }
@@ -108,8 +117,6 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
 
         // PUT: api/Customer/5
@@ -126,10 +133,18 @@ namespace GasB360_server.Controllers
                 customer.Requested = "true";
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Request connection successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
-                if (!TblCustomerExists(id))
+                if (!IsCustomerExists(id))
                 {
                     return NotFound();
                 }
@@ -138,8 +153,6 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
 
         [HttpPost]
@@ -170,7 +183,7 @@ namespace GasB360_server.Controllers
         // POST: api/Customer
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblCustomer>> PostTblCustomer(TblCustomer tblCustomer)
+        public async Task<IActionResult> AddNewCustomer(TblCustomer tblCustomer)
         {
             try
             {
@@ -187,7 +200,7 @@ namespace GasB360_server.Controllers
                 await _mailService.SendEmailAsync(mail);
 
                 return CreatedAtAction(
-                    "GetTblCustomer",
+                    "GetCustomerById",
                     new { id = tblCustomer.CustomerId },
                     tblCustomer
                 );
@@ -201,7 +214,7 @@ namespace GasB360_server.Controllers
 
         // DELETE: api/Customer/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblCustomer(Guid id)
+        public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
             try
             {
@@ -214,7 +227,9 @@ namespace GasB360_server.Controllers
                 _context.TblCustomers.Remove(tblCustomer);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new { status = "success", message = "Delete customer by id successful." }
+                );
             }
             catch (System.Exception ex)
             {
@@ -223,7 +238,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblCustomerExists(Guid id)
+        private bool IsCustomerExists(Guid id)
         {
             return _context.TblCustomers.Any(e => e.CustomerId == id);
         }
