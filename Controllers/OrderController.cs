@@ -33,7 +33,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Order GET request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -56,7 +56,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Order GET BY ID request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -84,7 +84,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    return BadRequest(new{status="Order POST or PUT request Failed",message = ex.Message});
+                    return BadRequest(new{status="Failed",message = ex.Message});
                 }
             }
 
@@ -106,7 +106,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Order POST request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -131,7 +131,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Order DELETE request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
