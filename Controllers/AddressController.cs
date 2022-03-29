@@ -10,7 +10,7 @@ using GasB360_server.Models;
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class AddressController : ControllerBase
     {
@@ -50,6 +50,31 @@ namespace GasB360_server.Controllers
                 }
 
                 return tblAddress;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
+        // GET: api/Address/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTblAddressByUserId(Guid id)
+        {
+            try
+            {
+                var tblAddress = await _context.TblAddresses
+                    .Where(a => a.Active == "true")
+                    .Where(a => a.CustomerId == id)
+                    .ToListAsync();
+
+                if (tblAddress == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(tblAddress);
             }
             catch (System.Exception ex)
             {
