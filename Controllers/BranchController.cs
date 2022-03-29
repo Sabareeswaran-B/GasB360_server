@@ -82,7 +82,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblBranchExists(id))
+                if (!IsBranchExists(id))
                 {
                     return NotFound();
                 }
@@ -152,7 +152,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblBranchExists(Guid id)
+        private bool IsBranchExists(Guid id)
         {
             return _context.TblBranches.Any(e => e.BranchId == id);
         }
