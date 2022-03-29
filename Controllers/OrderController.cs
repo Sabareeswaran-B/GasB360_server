@@ -55,7 +55,6 @@ namespace GasB360_server.Controllers
            }
            catch (System.Exception ex)
            {
-               
                return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
