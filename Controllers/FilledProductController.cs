@@ -45,7 +45,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -77,7 +77,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    Console.WriteLine(ex);
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
@@ -105,7 +105,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -129,7 +129,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }

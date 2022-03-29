@@ -7,9 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-);
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(
+        options =>
+            options.SerializerSettings.ReferenceLoopHandling =
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore
+    );
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -60,7 +64,28 @@ if (builder.Environment.IsDevelopment())
     );
 }
 
+Host.CreateDefaultBuilder(args)
+    .ConfigureWebHostDefaults(
+        webBuilder =>
+        {
+            // Add the following line:
+            webBuilder.UseSentry(
+                o =>
+                {
+                    o.Dsn =
+                        "https://a9deabdc14104bd18c63b9ba7411ba9f@o1169931.ingest.sentry.io/6294525";
+                    o.Debug = true;
+                    o.TracesSampleRate = 1.0;
+                }
+            );
+        }
+    );
+
+builder.WebHost.UseSentry();
+
 var app = builder.Build();
+
+app.UseSentryTracing();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -68,6 +93,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSentryTracing();
 
 app.UseHttpsRedirection();
 
@@ -80,5 +107,6 @@ app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseMiddleware<JwtHelper>();
 
 app.MapControllers();
+
 
 app.Run();

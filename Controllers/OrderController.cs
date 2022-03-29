@@ -32,7 +32,7 @@ namespace GasB360_server.Controllers
            }
            catch (System.Exception ex)
            {
-               
+               Console.WriteLine(ex);
                return BadRequest(new{status="Order GET request Failed",message = ex.Message});
            }
         }

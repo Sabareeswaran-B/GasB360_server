@@ -79,7 +79,7 @@ public class JwtHelper
         }
         catch (System.Exception ex)
         {
-            Console.WriteLine(ex);
+            Sentry.SentrySdk.CaptureException(ex);
             // Sentry.SentrySdk.CaptureException(ex);
         }
     }
