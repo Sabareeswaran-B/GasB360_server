@@ -25,7 +25,7 @@ namespace GasB360_server.Models
 
         public virtual TblRole? Role { get; set; }
         public virtual TblType? Type { get; set; }
-        public virtual ICollection<TblAddress> TblAddresses { get; set; }
-        public virtual ICollection<TblOrder> TblOrders { get; set; }
+        public virtual ICollection<TblAddress>? TblAddresses { get; set; }
+        public virtual ICollection<TblOrder>? TblOrders { get; set; }
     }
 }
