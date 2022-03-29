@@ -7,21 +7,26 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using GasB360_server.Services;
+using GasB360_server.Helpers.Customer;
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class CustomerController : ControllerBase
     {
         private readonly GasB360Context _context;
+        private readonly ICustomerService _customerService;
 
-        public CustomerController(GasB360Context context)
+        public CustomerController(GasB360Context context, ICustomerService customerService)
         {
             _context = context;
+            _customerService = customerService;
         }
 
         // GET: api/Customer
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblCustomer>>> GetTblCustomers()
         {
@@ -37,8 +42,9 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Customer/5
+        [Authorize("admin")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblCustomer>> GetTblCustomer(Guid id)
+        public async Task<IActionResult> GetTblCustomer(Guid id)
         {
             try
             {
@@ -49,7 +55,14 @@ namespace GasB360_server.Controllers
                     return NotFound();
                 }
 
-                return tblCustomer;
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "get customer by id Successful",
+                        data = tblCustomer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -70,6 +83,8 @@ namespace GasB360_server.Controllers
 
             try
             {
+                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
+                tblCustomer.Password = hashPassword;
                 _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
@@ -88,6 +103,31 @@ namespace GasB360_server.Controllers
             return NoContent();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Login(AuthRequest request)
+        {
+            try
+            {
+                var customer = await _context.TblCustomers
+                    .Include(x => x.Role)
+                    .FirstOrDefaultAsync(x => x.CustomerEmail == request.Email);
+                if (customer == null)
+                    return BadRequest(new { status = "failed", message = "Email not found!" });
+                var verify = BCrypt.Net.BCrypt.Verify(request.Password, customer!.Password);
+                if (!verify)
+                    return BadRequest(new { status = "failed", message = "Incorrect password!" });
+                var response = _customerService.Authenticate(customer);
+                return Ok(
+                    new { status = "success", message = "Login Successfull", data = response }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
         // POST: api/Customer
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -95,6 +135,8 @@ namespace GasB360_server.Controllers
         {
             try
             {
+                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
+                tblCustomer.Password = hashPassword;
                 _context.TblCustomers.Add(tblCustomer);
                 await _context.SaveChangesAsync();
 

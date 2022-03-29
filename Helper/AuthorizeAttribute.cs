@@ -25,15 +25,15 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         if (allowAnonymous)
             return;
 
-        var customer = (TblCustomer)context.HttpContext.Items["customer"]!;
-        if (customer == null)
+        var user = (AuthResponse)context.HttpContext.Items["user"]!;
+        if (user == null)
         {
             context.Result = new JsonResult(new { message = "unauthorized" })
             {
                 StatusCode = StatusCodes.Status401Unauthorized
             };
         }
-        else if (!_roles.Contains(customer.Role!.RoleType!) && _roles.Any())
+        else if (!_roles.Contains(user.Role) && _roles.Any())
         {
             context.Result = new JsonResult(new { message = "forbidden" })
             {
