@@ -103,6 +103,36 @@ namespace GasB360_server.Controllers
             return NoContent();
         }
 
+        // PUT: api/Customer/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> RequestConnection(Guid id)
+        {
+            try
+            {
+                TblCustomer customer = await _context.TblCustomers
+                    .Where(c => c.Active == "true")
+                    .Where(c => c.CustomerId == id)
+                    .FirstOrDefaultAsync();
+                customer.Requested = "true";
+                _context.Entry(customer).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                if (!TblCustomerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+
+            return NoContent();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(AuthRequest request)
         {
