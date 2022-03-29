@@ -10,15 +10,13 @@ using GasB360_server.Models;
 using GasB360_server.Services;
 using GasB360_server.Helpers;
 
-
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-       
-       private readonly GasB360Context _context;
+        private readonly GasB360Context _context;
 
         private readonly IEmployeeService _EmployeeService;
 
@@ -38,7 +36,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -60,7 +58,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -77,6 +75,8 @@ namespace GasB360_server.Controllers
 
             try
             {
+                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
+                tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
@@ -115,15 +115,18 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // POST: api/Employee
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TblEmployee>> PostTblEmployee(TblEmployee tblEmployee)
         {
+            var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
+            tblEmployee.Password = hashPassword;
             _context.TblEmployees.Add(tblEmployee);
             await _context.SaveChangesAsync();
 
@@ -153,7 +156,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }

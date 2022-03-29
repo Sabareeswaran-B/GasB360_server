@@ -32,8 +32,8 @@ namespace GasB360_server.Controllers
            }
            catch (System.Exception ex)
            {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
+               Console.WriteLine(ex);
+               return BadRequest(new{status="Order GET request Failed",message = ex.Message});
            }
         }
 

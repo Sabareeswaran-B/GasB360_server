@@ -19,16 +19,25 @@ public class JwtHelper
         _appSettings = appsettings.Value;
     }
 
-    public async Task Invoke(HttpContext context, ICustomerService customerService)
+    public async Task Invoke(
+        HttpContext context,
+        ICustomerService customerService,
+        IEmployeeService employeeService
+    )
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         if (token != null)
-            attachUserToContext(customerService, context, token);
+            attachUserToContext(customerService, employeeService, context, token);
         await _next!(context);
     }
 
-    private void attachUserToContext(ICustomerService customerService, HttpContext context, string token)
+    private void attachUserToContext(
+        ICustomerService customerService,
+        IEmployeeService employeeService,
+        HttpContext context,
+        string token
+    )
     {
         try
         {
@@ -50,60 +59,27 @@ public class JwtHelper
             var jwtToken = (JwtSecurityToken)validateToken;
             var userID = Guid.Parse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")!.Value);
             var customer = customerService.GetById(userID);
-
-            context.Items["user"] = new AuthResponse(customer.CustomerId, customer.Role!.RoleType!, "");
+            if (customer != null)
+            {
+                context.Items["user"] = new AuthResponse(
+                    customer.CustomerId,
+                    customer.Role!.RoleType!,
+                    ""
+                );
+            }
+            else
+            {
+                var Employee = employeeService.GetById(userID);
+                context.Items["user"] = new AuthResponse(
+                    Employee.EmployeeId,
+                    Employee.Role!.RoleType!,
+                    ""
+                );
+            }
         }
         catch (System.Exception ex)
         {
-            Console.WriteLine(ex);
-            // Sentry.SentrySdk.CaptureException(ex);
-        }
-    }
-}
-public class JwtHelperEmployee
-{
-    private readonly RequestDelegate? _next;
-    private readonly AppSettings? _appSettings;
-    public JwtHelperEmployee(RequestDelegate next, IOptions<AppSettings> appsettings)
-    {
-        _next = next;
-        _appSettings = appsettings.Value;
-    }
-
-    public async Task Invoke(HttpContext context, IEmployeeService EmployeeService)
-    {
-        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        if (token != null)
-            attachUserToContext(EmployeeService, context, token);
-        await _next!(context);
-    }
-
-    private void attachUserToContext(IEmployeeService EmployeeService, HttpContext context, string token)
-    {
-        try
-        {
-            var key = Encoding.ASCII.GetBytes(_appSettings!.Secret!);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            tokenHandler.ValidateToken(
-                token,
-                new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero,
-                },
-                out SecurityToken validateToken
-            );
-            var jwtToken = (JwtSecurityToken)validateToken;
-            var userID = Guid.Parse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")!.Value);
-            var Employee = EmployeeService.GetById(userID);
-            context.Items["user"] = new AuthResponse(Employee.EmployeeId, Employee.Role!.RoleType!, "");
-        }
-        catch (System.Exception ex)
-        {
-            Console.WriteLine(ex);
+            Sentry.SentrySdk.CaptureException(ex);
             // Sentry.SentrySdk.CaptureException(ex);
         }
     }
