@@ -18,11 +18,17 @@ namespace GasB360_server.Controllers
     {
         private readonly GasB360Context _context;
         private readonly ICustomerService _customerService;
+        private readonly IMailService _mailService;
 
-        public CustomerController(GasB360Context context, ICustomerService customerService)
+        public CustomerController(
+            GasB360Context context,
+            ICustomerService customerService,
+            IMailService mailService
+        )
         {
             _context = context;
             _customerService = customerService;
+            _mailService = mailService;
         }
 
         // GET: api/Customer
@@ -169,6 +175,13 @@ namespace GasB360_server.Controllers
                 tblCustomer.Password = hashPassword;
                 _context.TblCustomers.Add(tblCustomer);
                 await _context.SaveChangesAsync();
+
+                var mail = new MailRequest();
+                mail.ToEmail = tblCustomer.CustomerEmail;
+                mail.Subject = "Welcome to GasB360";
+                mail.Body =
+                    $"<h3>Hello {tblCustomer.CustomerName},</h3><p>Thank you for register. We are glad to be on your service. Get a connection and order from us.</p><br><p>Thankyou</p><br><p>GasB360</p>";
+                await _mailService.SendEmailAsync(mail);
 
                 return CreatedAtAction(
                     "GetTblCustomer",
