@@ -25,14 +25,25 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblType>>> GetTblTypes()
         {
-            return await _context.TblTypes.ToListAsync();
+              try
+           {
+              return await _context.TblTypes.ToListAsync();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type GET request Failed",message = ex.Message});
+           }
         }
 
         // GET: api/Type/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblType>> GetTblType(Guid id)
         {
-            var tblType = await _context.TblTypes.FindAsync(id);
+          
+               try
+           {
+               var tblType = await _context.TblTypes.FindAsync(id);
 
             if (tblType == null)
             {
@@ -40,6 +51,12 @@ namespace GasB360_server.Controllers
             }
 
             return tblType;
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type GET BY ID request Failed",message = ex.Message});
+           }
         }
 
         // PUT: api/Type/5
@@ -52,13 +69,13 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblType).State = EntityState.Modified;
 
             try
             {
+            _context.Entry(tblType).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblTypeExists(id))
                 {
@@ -66,7 +83,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                     return BadRequest(new{status="Type GET BY ID request Failed",message = ex.Message});
                 }
             }
 
@@ -78,17 +95,26 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblType>> PostTblType(TblType tblType)
         {
+               try
+           {
             _context.TblTypes.Add(tblType);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetTblType", new { id = tblType.TypeId }, tblType);
+           }
+           catch (System.Exception ex)
+           {   
+            return BadRequest(new{status="Type PUT request Failed",message = ex.Message});
+           }
         }
 
         // DELETE: api/Type/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblType(Guid id)
         {
-            var tblType = await _context.TblTypes.FindAsync(id);
+           
+                 try
+           {
+             var tblType = await _context.TblTypes.FindAsync(id);
             if (tblType == null)
             {
                 return NotFound();
@@ -98,6 +124,11 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+           }
+           catch (System.Exception ex)
+           {   
+            return BadRequest(new{status="Type DELETE request Failed",message = ex.Message});
+           }
         }
 
         private bool TblTypeExists(Guid id)

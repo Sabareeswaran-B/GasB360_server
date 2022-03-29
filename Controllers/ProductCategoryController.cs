@@ -25,14 +25,25 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblProductCategory>>> GetTblProductCategories()
         {
-            return await _context.TblProductCategories.ToListAsync();
+            // return await _context.TblProductCategories.ToListAsync();
+             try
+           {
+               return await _context.TblProductCategories.ToListAsync();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Product Category GET request Failed",message = ex.Message});
+           }
         }
 
         // GET: api/ProductCategory/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblProductCategory>> GetTblProductCategory(Guid id)
         {
-            var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
+                try
+           {
+               var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
 
             if (tblProductCategory == null)
             {
@@ -40,6 +51,12 @@ namespace GasB360_server.Controllers
             }
 
             return tblProductCategory;
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Product Category GET BY ID request Failed",message = ex.Message});
+           }
         }
 
         // PUT: api/ProductCategory/5
@@ -58,7 +75,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblProductCategoryExists(id))
                 {
@@ -66,7 +83,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                   return BadRequest(new{status="Product Category POST request Failed",message = ex.Message});
+
                 }
             }
 
@@ -78,17 +96,30 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblProductCategory>> PostTblProductCategory(TblProductCategory tblProductCategory)
         {
-            _context.TblProductCategories.Add(tblProductCategory);
+          
+            try
+           {
+                _context.TblProductCategories.Add(tblProductCategory);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTblProductCategory", new { id = tblProductCategory.ProductId }, tblProductCategory);
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Product Category POST request Failed",message = ex.Message});
+           }
         }
 
         // DELETE: api/ProductCategory/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblProductCategory(Guid id)
         {
-            var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
+           
+
+              try
+           {
+                var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
             if (tblProductCategory == null)
             {
                 return NotFound();
@@ -98,6 +129,12 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Product Category POST request Failed",message = ex.Message});
+           }
         }
 
         private bool TblProductCategoryExists(Guid id)

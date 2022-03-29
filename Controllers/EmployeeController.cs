@@ -7,18 +7,25 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using GasB360_server.Services;
+using GasB360_server.Helpers;
+
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly GasB360Context _context;
+       
+       private readonly GasB360Context _context;
 
-        public EmployeeController(GasB360Context context)
+        private readonly IEmployeeService _EmployeeService;
+
+        public EmployeeController(GasB360Context context, IEmployeeService EmployeeService)
         {
             _context = context;
+            _EmployeeService = EmployeeService;
         }
 
         // GET: api/Employee
@@ -88,6 +95,30 @@ namespace GasB360_server.Controllers
             return NoContent();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Login(AuthRequest request)
+        {
+            try
+            {
+                var Employee = await _context.TblEmployees
+                    .Include(x => x.Role)
+                    .FirstOrDefaultAsync(x => x.EmployeeEmail == request.Email);
+                if (Employee == null)
+                    return BadRequest(new { status = "failed", message = "Email not found!" });
+                var verify = BCrypt.Net.BCrypt.Verify(request.Password, Employee!.Password);
+                if (!verify)
+                    return BadRequest(new { status = "failed", message = "Incorrect password!" });
+                var response = _EmployeeService.Authenticate(Employee);
+                return Ok(
+                    new { status = "success", message = "Login Successfull", data = response }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
         // POST: api/Employee
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]

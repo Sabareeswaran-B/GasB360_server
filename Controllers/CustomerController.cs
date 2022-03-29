@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
 using GasB360_server.Services;
-using GasB360_server.Helpers.Customer;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {

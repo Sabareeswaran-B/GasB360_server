@@ -8,27 +8,36 @@ using GasB360_server.Models;
 
 namespace GasB360_server.Helpers;
 
-public class JwtHelperCustomer
+public class JwtHelper
 {
     private readonly RequestDelegate? _next;
     private readonly AppSettings? _appSettings;
 
-    public JwtHelperCustomer(RequestDelegate next, IOptions<AppSettings> appsettings)
+    public JwtHelper(RequestDelegate next, IOptions<AppSettings> appsettings)
     {
         _next = next;
         _appSettings = appsettings.Value;
     }
 
-    public async Task Invoke(HttpContext context, ICustomerService customerService)
+    public async Task Invoke(
+        HttpContext context,
+        ICustomerService customerService,
+        IEmployeeService employeeService
+    )
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         if (token != null)
-            attachUserToContext(customerService, context, token);
+            attachUserToContext(customerService, employeeService, context, token);
         await _next!(context);
     }
 
-    private void attachUserToContext(ICustomerService customerService, HttpContext context, string token)
+    private void attachUserToContext(
+        ICustomerService customerService,
+        IEmployeeService employeeService,
+        HttpContext context,
+        string token
+    )
     {
         try
         {
@@ -50,8 +59,23 @@ public class JwtHelperCustomer
             var jwtToken = (JwtSecurityToken)validateToken;
             var userID = Guid.Parse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")!.Value);
             var customer = customerService.GetById(userID);
-
-            context.Items["user"] = new AuthResponse(customer.CustomerId, customer.Role!.RoleType!, "");
+            if (customer != null)
+            {
+                context.Items["user"] = new AuthResponse(
+                    customer.CustomerId,
+                    customer.Role!.RoleType!,
+                    ""
+                );
+            }
+            else
+            {
+                var Employee = employeeService.GetById(userID);
+                context.Items["user"] = new AuthResponse(
+                    Employee.EmployeeId,
+                    Employee.Role!.RoleType!,
+                    ""
+                );
+            }
         }
         catch (System.Exception ex)
         {

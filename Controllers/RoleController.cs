@@ -25,14 +25,24 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblRole>>> GetTblRoles()
         {
-            return await _context.TblRoles.ToListAsync();
+            try
+           {
+               return await _context.TblRoles.ToListAsync();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Role GET request Failed",message = ex.Message});
+           }
         }
 
         // GET: api/Role/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblRole>> GetTblRole(Guid id)
         {
-            var tblRole = await _context.TblRoles.FindAsync(id);
+             try
+           {
+              var tblRole = await _context.TblRoles.FindAsync(id);
 
             if (tblRole == null)
             {
@@ -40,6 +50,12 @@ namespace GasB360_server.Controllers
             }
 
             return tblRole;
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Role GET BY ID request Failed",message = ex.Message});
+           }
         }
 
         // PUT: api/Role/5
@@ -58,7 +74,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblRoleExists(id))
                 {
@@ -66,7 +82,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+                   return BadRequest(new{status="Role GET BY ID request Failed",message = ex.Message});
+
                 }
             }
 
@@ -78,17 +95,28 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblRole>> PostTblRole(TblRole tblRole)
         {
-            _context.TblRoles.Add(tblRole);
+          
+             try
+           {
+                 _context.TblRoles.Add(tblRole);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTblRole", new { id = tblRole.RoleId }, tblRole);
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Role PUT request Failed",message = ex.Message});
+           }
         }
 
         // DELETE: api/Role/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblRole(Guid id)
         {
-            var tblRole = await _context.TblRoles.FindAsync(id);
+            try
+           {
+             var tblRole = await _context.TblRoles.FindAsync(id);
             if (tblRole == null)
             {
                 return NotFound();
@@ -98,6 +126,12 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Role DELETE request Failed",message = ex.Message});
+           }
         }
 
         private bool TblRoleExists(Guid id)
