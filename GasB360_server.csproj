@@ -15,7 +15,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.entityframeworkcore.sqlserver" Version="6.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.web.codegeneration.Design" Version="6.0.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
   </ItemGroup>
 
 </Project>
