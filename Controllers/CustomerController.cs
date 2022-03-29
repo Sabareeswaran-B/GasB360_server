@@ -34,11 +34,14 @@ namespace GasB360_server.Controllers
         // GET: api/Customer
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblCustomer>>> GetTblCustomers()
+        public async Task<IActionResult> GetAllCustomers()
         {
             try
             {
-                return await _context.TblCustomers.ToListAsync();
+                var customers = await _context.TblCustomers.ToListAsync();
+                return Ok(
+                    new { status = "success", message = "Gell all customers", data = customers }
+                );
             }
             catch (System.Exception ex)
             {
@@ -50,7 +53,7 @@ namespace GasB360_server.Controllers
         // GET: api/Customer/5
         [Authorize("admin")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTblCustomer(Guid id)
+        public async Task<IActionResult> GetCustomerById(Guid id)
         {
             try
             {
@@ -80,7 +83,7 @@ namespace GasB360_server.Controllers
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblCustomer(Guid id, TblCustomer tblCustomer)
+        public async Task<IActionResult> UpdateCustomer(Guid id, TblCustomer tblCustomer)
         {
             if (id != tblCustomer.CustomerId)
             {

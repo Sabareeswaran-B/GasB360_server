@@ -23,11 +23,12 @@ namespace GasB360_server.Controllers
 
         // GET: api/Branch
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblBranch>>> GetTblBranches()
+        public async Task<IActionResult> GetAllBranches()
         {
             try
             {
-                return await _context.TblBranches.ToListAsync();
+                var branch = await _context.TblBranches.ToListAsync();
+                return Ok(new { status = "success", message = "Gell all branches", data = branch });
             }
             catch (System.Exception ex)
             {
@@ -38,18 +39,20 @@ namespace GasB360_server.Controllers
 
         // GET: api/Branch/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblBranch>> GetTblBranch(Guid id)
+        public async Task<IActionResult> GetBranchById(Guid id)
         {
             try
             {
-                var tblBranch = await _context.TblBranches.FindAsync(id);
+                var branch = await _context.TblBranches.FindAsync(id);
 
-                if (tblBranch == null)
+                if (branch == null)
                 {
                     return NotFound();
                 }
 
-                return tblBranch;
+                return Ok(
+                    new { status = "success", message = "Gell branche by id", data = branch }
+                );
             }
             catch (System.Exception ex)
             {
@@ -61,7 +64,7 @@ namespace GasB360_server.Controllers
         // PUT: api/Branch/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblBranch(Guid id, TblBranch tblBranch)
+        public async Task<IActionResult> UpdateBranch(Guid id, TblBranch tblBranch)
         {
             if (id != tblBranch.BranchId)
             {
@@ -72,6 +75,10 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblBranch).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var branch = await _context.TblBranches.FindAsync(id);
+                return Ok(
+                    new { status = "success", message = "Update branch successful.", data = branch }
+                );
             }
             catch (System.Exception ex)
             {
@@ -85,21 +92,28 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/Branch
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblBranch>> PostTblBranch(TblBranch tblBranch)
+        public async Task<IActionResult> AddNewBranch(TblBranch tblBranch)
         {
             try
             {
                 _context.TblBranches.Add(tblBranch);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetTblBranch", new { id = tblBranch.BranchId }, tblBranch);
+                return CreatedAtAction(
+                    "GetBranchById",
+                    new { id = tblBranch.BranchId },
+                    new
+                    {
+                        status = "success",
+                        message = "Add new branch successful.",
+                        data = tblBranch
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -110,7 +124,7 @@ namespace GasB360_server.Controllers
 
         // DELETE: api/Branch/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblBranch(Guid id)
+        public async Task<IActionResult> DeleteBranch(Guid id)
         {
             try
             {
@@ -123,7 +137,13 @@ namespace GasB360_server.Controllers
                 _context.TblBranches.Remove(tblBranch);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete branch by id successful."
+                    }
+                );
             }
             catch (System.Exception ex)
             {
