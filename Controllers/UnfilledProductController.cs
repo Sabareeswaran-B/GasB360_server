@@ -25,14 +25,24 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TblUnfilledProduct>>> GetTblUnfilledProducts()
         {
-            return await _context.TblUnfilledProducts.ToListAsync();
+             try
+           {
+              return await _context.TblUnfilledProducts.ToListAsync();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type GET request Failed",message = ex.Message});
+           }
         }
 
         // GET: api/UnfilledProduct/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TblUnfilledProduct>> GetTblUnfilledProduct(Guid id)
         {
-            var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
+               try
+           {
+              var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
 
             if (tblUnfilledProduct == null)
             {
@@ -40,6 +50,12 @@ namespace GasB360_server.Controllers
             }
 
             return tblUnfilledProduct;
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type GET BY ID request Failed",message = ex.Message});
+           }
         }
 
         // PUT: api/UnfilledProduct/5
@@ -58,7 +74,7 @@ namespace GasB360_server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (System.Exception ex)
             {
                 if (!TblUnfilledProductExists(id))
                 {
@@ -66,7 +82,8 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                    throw;
+           return BadRequest(new{status="Type GET BY ID request Failed",message = ex.Message});
+
                 }
             }
 
@@ -78,17 +95,29 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<ActionResult<TblUnfilledProduct>> PostTblUnfilledProduct(TblUnfilledProduct tblUnfilledProduct)
         {
-            _context.TblUnfilledProducts.Add(tblUnfilledProduct);
+            
+             try
+           {
+              _context.TblUnfilledProducts.Add(tblUnfilledProduct);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTblUnfilledProduct", new { id = tblUnfilledProduct.UnfilledProductId }, tblUnfilledProduct);
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type PUT request Failed",message = ex.Message});
+           }
         }
 
         // DELETE: api/UnfilledProduct/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTblUnfilledProduct(Guid id)
         {
-            var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
+          
+               try
+           {
+             var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
             if (tblUnfilledProduct == null)
             {
                 return NotFound();
@@ -98,6 +127,12 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+           }
+           catch (System.Exception ex)
+           {
+               
+               return BadRequest(new{status="Type DELETE request Failed",message = ex.Message});
+           }
         }
 
         private bool TblUnfilledProductExists(Guid id)
