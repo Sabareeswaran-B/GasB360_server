@@ -18,25 +18,34 @@ namespace GasB360_server.Controllers
     {
         private readonly GasB360Context _context;
         private readonly ICustomerService _customerService;
+        private readonly IMailService _mailService;
 
-        public CustomerController(GasB360Context context, ICustomerService customerService)
+        public CustomerController(
+            GasB360Context context,
+            ICustomerService customerService,
+            IMailService mailService
+        )
         {
             _context = context;
             _customerService = customerService;
+            _mailService = mailService;
         }
 
         // GET: api/Customer
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblCustomer>>> GetTblCustomers()
+        public async Task<IActionResult> GetAllCustomers()
         {
             try
             {
-                return await _context.TblCustomers.ToListAsync();
+                var customers = await _context.TblCustomers.ToListAsync();
+                return Ok(
+                    new { status = "success", message = "Gell all customers", data = customers }
+                );
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -44,7 +53,7 @@ namespace GasB360_server.Controllers
         // GET: api/Customer/5
         [Authorize("admin")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTblCustomer(Guid id)
+        public async Task<IActionResult> GetCustomerById(Guid id)
         {
             try
             {
@@ -66,7 +75,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -74,7 +83,7 @@ namespace GasB360_server.Controllers
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblCustomer(Guid id, TblCustomer tblCustomer)
+        public async Task<IActionResult> UpdateCustomer(Guid id, TblCustomer tblCustomer)
         {
             if (id != tblCustomer.CustomerId)
             {
@@ -87,10 +96,19 @@ namespace GasB360_server.Controllers
                 tblCustomer.Password = hashPassword;
                 _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var customer = await _context.TblCustomers.FindAsync(id);
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update customer successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
-                if (!TblCustomerExists(id))
+                if (!IsCustomerExists(id))
                 {
                     return NotFound();
                 }
@@ -99,8 +117,42 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
+        }
 
-            return NoContent();
+        // PUT: api/Customer/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> RequestConnection(Guid id)
+        {
+            try
+            {
+                TblCustomer customer = await _context.TblCustomers
+                    .Where(c => c.Active == "true")
+                    .Where(c => c.CustomerId == id)
+                    .FirstOrDefaultAsync();
+                customer.Requested = "true";
+                _context.Entry(customer).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Request connection successful.",
+                        data = customer
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!IsCustomerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
         }
 
         [HttpPost]
@@ -123,7 +175,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
@@ -131,7 +183,7 @@ namespace GasB360_server.Controllers
         // POST: api/Customer
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblCustomer>> PostTblCustomer(TblCustomer tblCustomer)
+        public async Task<IActionResult> AddNewCustomer(TblCustomer tblCustomer)
         {
             try
             {
@@ -140,22 +192,29 @@ namespace GasB360_server.Controllers
                 _context.TblCustomers.Add(tblCustomer);
                 await _context.SaveChangesAsync();
 
+                var mail = new MailRequest();
+                mail.ToEmail = tblCustomer.CustomerEmail;
+                mail.Subject = "Welcome to GasB360";
+                mail.Body =
+                    $"<h3>Hello {tblCustomer.CustomerName},</h3><p>Thank you for register. We are glad to be on your service. Get a connection and order from us.</p><br><p>Thankyou</p><br><p>GasB360</p>";
+                await _mailService.SendEmailAsync(mail);
+
                 return CreatedAtAction(
-                    "GetTblCustomer",
+                    "GetCustomerById",
                     new { id = tblCustomer.CustomerId },
                     tblCustomer
                 );
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
 
         // DELETE: api/Customer/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblCustomer(Guid id)
+        public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
             try
             {
@@ -168,16 +227,18 @@ namespace GasB360_server.Controllers
                 _context.TblCustomers.Remove(tblCustomer);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new { status = "success", message = "Delete customer by id successful." }
+                );
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex);
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
 
-        private bool TblCustomerExists(Guid id)
+        private bool IsCustomerExists(Guid id)
         {
             return _context.TblCustomers.Any(e => e.CustomerId == id);
         }
