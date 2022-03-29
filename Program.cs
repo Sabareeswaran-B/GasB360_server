@@ -51,6 +51,7 @@ builder.Services.AddCors();
 
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -76,7 +77,7 @@ app.UseAuthentication();
 
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-app.UseMiddleware<JwtHelperCustomer>();
+app.UseMiddleware<JwtHelper>();
 
 app.MapControllers();
 

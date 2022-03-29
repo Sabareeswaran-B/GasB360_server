@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using GasB360_server.Models;
 
-namespace GasB360_server.Helpers.Customer;
+namespace GasB360_server.Helpers;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class AllowAnonymousAttribute : Attribute { }
