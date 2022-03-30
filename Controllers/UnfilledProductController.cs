@@ -155,7 +155,7 @@ namespace GasB360_server.Controllers
         }
 
         [HttpPut("{unFilledProductId}/{stocksToRemove}")]
-        public async Task<IActionResult> RemoveFilledProductStock(
+        public async Task<IActionResult> RemoveUnFilledProductStock(
             Guid unFilledProductId,
             int stocksToRemove
         )
