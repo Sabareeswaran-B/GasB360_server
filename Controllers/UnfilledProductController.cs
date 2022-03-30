@@ -45,9 +45,7 @@ namespace GasB360_server.Controllers
 
         // GET: api/UnfilledProduct/5
         [HttpGet("{unfilledProductId}")]
-        public async Task<IActionResult> GetUnfilledProductById(
-            Guid unfilledProductId
-        )
+        public async Task<IActionResult> GetUnfilledProductById(Guid unfilledProductId)
         {
             try
             {
@@ -119,6 +117,87 @@ namespace GasB360_server.Controllers
             }
         }
 
+        [HttpPut("{unFilledProductId}/{stocksToAdd}")]
+        public async Task<IActionResult> AddUnFilledProductStock(
+            Guid unFilledProductId,
+            int stocksToAdd
+        )
+        {
+            try
+            {
+                var unFilledProduct = await _context.TblUnfilledProducts.FindAsync(
+                    unFilledProductId
+                );
+                unFilledProduct.UnfilledProductQuantity += stocksToAdd;
+                _context.Entry(unFilledProduct).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Unfilled product stock added successfully",
+                        data = unFilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!IsUnfilledProductExists(unFilledProductId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+        }
+
+        [HttpPut("{unFilledProductId}/{stocksToRemove}")]
+        public async Task<IActionResult> RemoveFilledProductStock(
+            Guid unFilledProductId,
+            int stocksToRemove
+        )
+        {
+            try
+            {
+                var unFilledProduct = await _context.TblUnfilledProducts.FindAsync(
+                    unFilledProductId
+                );
+                if (unFilledProduct.UnfilledProductQuantity > stocksToRemove)
+                {
+                    unFilledProduct.UnfilledProductQuantity -= stocksToRemove;
+                }
+                else
+                {
+                    unFilledProduct.Active = "false";
+                }
+                _context.Entry(unFilledProduct).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Unfilled product stock removed successfully",
+                        data = unFilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!IsUnfilledProductExists(unFilledProductId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+        }
+
         // POST: api/UnfilledProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -166,7 +245,13 @@ namespace GasB360_server.Controllers
                 _context.TblUnfilledProducts.Remove(tblUnfilledProduct);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { status = "success", message = "Delete unfilled product by id successful." });
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete unfilled product by id successful."
+                    }
+                );
             }
             catch (System.Exception ex)
             {

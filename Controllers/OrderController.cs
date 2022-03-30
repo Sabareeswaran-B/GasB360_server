@@ -178,6 +178,8 @@ namespace GasB360_server.Controllers
             {
                 tblOrder.OrderOtp = OrderOtpGenerator();
                 tblOrder.EmployeeId = await AssignEmployeeId();
+                await AddUnfilledProduct(tblOrder.FilledProductId);
+                await RemovefilledProduct(tblOrder.FilledProductId);
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
@@ -245,6 +247,37 @@ namespace GasB360_server.Controllers
                 .OrderBy(x => Guid.NewGuid())
                 .FirstOrDefaultAsync();
             return employee.EmployeeId;
+        }
+
+        private async Task AddUnfilledProduct(Guid? filledProductId)
+        {
+            var filledProduct = await _context.TblFilledProducts
+                .Where(x => x.Active == "true")
+                .Where(x => x.FilledProductId == filledProductId)
+                .Include(x => x.ProductCategory)
+                .FirstOrDefaultAsync();
+            var unfilledProduct = await _context.TblUnfilledProducts
+                .Where(x => x.ProductCategoryId == filledProduct.ProductCategoryId)
+                .FirstOrDefaultAsync();
+            unfilledProduct.UnfilledProductQuantity += 1;
+            _context.Entry(unfilledProduct).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task RemovefilledProduct(Guid? filledProductId)
+        {
+            var unfilledProduct = await _context.TblFilledProducts
+                .Where(x => x.Active == "true")
+                .Where(x => x.FilledProductId == filledProductId)
+                .FirstOrDefaultAsync();
+
+            if (unfilledProduct.FilledProductQuantity >= 2)
+                unfilledProduct.FilledProductQuantity -= 1;
+            else
+                unfilledProduct.Active = "false";
+
+            _context.Entry(unfilledProduct).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
     }
 }

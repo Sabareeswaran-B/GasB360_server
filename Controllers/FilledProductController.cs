@@ -82,7 +82,9 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblFilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var updatedFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
+                var updatedFilledProduct = await _context.TblFilledProducts.FindAsync(
+                    filledProductId
+                );
                 return Ok(
                     new
                     {
@@ -94,7 +96,84 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblFilledProductExists(filledProductId))
+                if (!isFilledProductExists(filledProductId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+        }
+
+        [HttpPut("{filledProductId}/{stocksToAdd}")]
+        public async Task<IActionResult> AddFilledProductStock(
+            Guid filledProductId,
+            int stocksToAdd
+        )
+        {
+            try
+            {
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
+                tblFilledProduct.FilledProductQuantity += stocksToAdd;
+                _context.Entry(tblFilledProduct).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Filled product stock added successfully.",
+                        data = tblFilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!isFilledProductExists(filledProductId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+        }
+
+        [HttpPut("{filledProductId}/{stocksToRemove}")]
+        public async Task<IActionResult> RemoveFilledProductStock(
+            Guid filledProductId,
+            int stocksToRemove
+        )
+        {
+            try
+            {
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
+                if (tblFilledProduct.FilledProductQuantity > stocksToRemove)
+                {
+                    tblFilledProduct.FilledProductQuantity -= stocksToRemove;
+                }
+                else
+                {
+                    tblFilledProduct.Active = "false";
+                }
+                _context.Entry(tblFilledProduct).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Filled product stock removed successfully",
+                        data = tblFilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!isFilledProductExists(filledProductId))
                 {
                     return NotFound();
                 }
@@ -109,9 +188,7 @@ namespace GasB360_server.Controllers
         // POST: api/FilledProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IActionResult> AddNewFilledProduct(
-            TblFilledProduct tblFilledProduct
-        )
+        public async Task<IActionResult> AddNewFilledProduct(TblFilledProduct tblFilledProduct)
         {
             try
             {
@@ -167,7 +244,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblFilledProductExists(Guid filledProductId)
+        private bool isFilledProductExists(Guid filledProductId)
         {
             return _context.TblFilledProducts.Any(e => e.FilledProductId == filledProductId);
         }
