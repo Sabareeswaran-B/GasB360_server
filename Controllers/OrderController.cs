@@ -26,67 +26,33 @@ namespace GasB360_server.Controllers
         public async Task<IActionResult> GetAllOrders()
         {
             try
-           {
-               var orders= await _context.TblOrders.ToListAsync();
-               return Ok(
-                   new
+            {
+                var orders = await _context.TblOrders.ToListAsync();
+                return Ok(
+                    new
                     {
                         status = "success",
-                        message = "Get all orders successfull.",
+                        message = "Get all orders successful.",
                         data = orders
                     }
-               );
-            
-           }
-           catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Order/5
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById(Guid orderId)
         {
-           
             try
-           {
+            {
                 var order = await _context.TblOrders.FindAsync(orderId);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Get order by id successfull.",
-                        data = order
-                    }
-                );
-           }
-           catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
-        }
-
-        // GET: api/Order/5
-        [HttpGet("{customerId}")]
-        public async Task<IActionResult> GetOrderByCustomerId(Guid customerId)
-        {
-            try
-            {
-                var Customerorders = await _context.TblOrders
-                    .Where(a => a.Active == "true")
-                    .Where(a => a.CustomerId == customerId)
-                    .ToListAsync();
-
-                if (Customerorders == null)
+                if (order == null)
                 {
                     return NotFound();
                 }
@@ -95,8 +61,40 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Get Orders by customer id successfull.",
-                        data = Customerorders
+                        message = "Get order by id successful.",
+                        data = order
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
+        // GET: api/Order/5
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetOrderByCustomerId(Guid customerId)
+        {
+            try
+            {
+                var customerOrders = await _context.TblOrders
+                    .Where(a => a.Active == "true")
+                    .Where(a => a.CustomerId == customerId)
+                    .ToListAsync();
+
+                if (customerOrders == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get Orders by customer id successful.",
+                        data = customerOrders
                     }
                 );
             }
@@ -113,12 +111,12 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var Orders = await _context.TblOrders
+                var orders = await _context.TblOrders
                     .Where(a => a.Active == "true")
                     .Where(a => a.EmployeeId == employeeId)
                     .ToListAsync();
 
-                if (Orders == null)
+                if (orders == null)
                 {
                     return NotFound();
                 }
@@ -127,8 +125,8 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Get Orders by Employee id successfull.",
-                        data = Orders
+                        message = "Get Orders by Employee id successful.",
+                        data = orders
                     }
                 );
             }
@@ -152,14 +150,9 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblOrder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var Order=await _context.TblOrders.FindAsync(id);
+                var Order = await _context.TblOrders.FindAsync(orderId);
                 return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Update Order successfull.",
-                        data = Order
-                    }
+                    new { status = "success", message = "Update Order successful.", data = Order }
                 );
             }
             catch (System.Exception ex)
@@ -171,7 +164,7 @@ namespace GasB360_server.Controllers
                 else
                 {
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new{status="Failed",message = ex.Message});
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
         }
@@ -182,35 +175,37 @@ namespace GasB360_server.Controllers
         public async Task<IActionResult> AddNewOrder(TblOrder tblOrder)
         {
             try
-           {
-                tblOrder.OrderOtp=OrderOtpGenerator();
+            {
+                tblOrder.OrderOtp = OrderOtpGenerator();
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetOrderById", new { orderId = tblOrder.OrderId },
-                new
+                return CreatedAtAction(
+                    "GetOrderById",
+                    new { orderId = tblOrder.OrderId },
+                    new
                     {
                         status = "success",
-                        message = "Add new order successfull.",
+                        message = "Add new order successful.",
                         data = tblOrder
-                    } );
-           }
-           catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/Order/5
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrder(Guid orderId)
         {
-           
             try
-           {
-               var tblOrder = await _context.TblOrders.FindAsync(orderId);
+            {
+                var tblOrder = await _context.TblOrders.FindAsync(orderId);
                 if (tblOrder == null)
                 {
                     return NotFound();
@@ -219,19 +214,13 @@ namespace GasB360_server.Controllers
                 _context.TblOrders.Remove(tblOrder);
                 await _context.SaveChangesAsync();
 
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delete order by id successfull."
-                    }
-                );
-           }
-           catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                return Ok(new { status = "success", message = "Delete order by id successful." });
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool IsOrderExists(Guid orderId)

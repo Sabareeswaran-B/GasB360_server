@@ -31,7 +31,7 @@ namespace GasB360_server.Controllers
                    new
                     {
                         status = "success",
-                        message = "Get all Deliverys successfull.",
+                        message = "Get all Deliverys successful.",
                         data = deliveries
                     }
                );
@@ -62,7 +62,7 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Get order by id successfull.",
+                        message = "Get order by id successful.",
                         data = delivery
                     }
                 );
@@ -99,7 +99,7 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Get Deliveries by Employee id successfull.",
+                        message = "Get Deliveries by Employee id successful.",
                         data = Deliveries
                     }
                 );
@@ -130,7 +130,7 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Update Delivery successfull.",
+                        message = "Update Delivery successful.",
                         data = Delivery
                     }
                 );
@@ -163,7 +163,7 @@ namespace GasB360_server.Controllers
                 new
                     {
                         status = "success",
-                        message = "Add new order successfull.",
+                        message = "Add new order successful.",
                         data = tblDelivery
                     }  );
 
@@ -195,7 +195,7 @@ namespace GasB360_server.Controllers
                     new
                     {
                         status = "success",
-                        message = "Delete delivery by id successfull."
+                        message = "Delete delivery by id successful."
                     }
                 );
 
