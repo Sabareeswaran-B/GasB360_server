@@ -89,7 +89,7 @@ namespace GasB360_server.Controllers
             {
             _context.Entry(tblType).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 var type =await _context.TblRoles.FindAsync(id);
+                 var type =await _context.TblTypes.FindAsync(id);
                  return Ok(
                     new
                     {
