@@ -23,14 +23,22 @@ namespace GasB360_server.Controllers
 
         // GET: api/FilledProduct
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblFilledProduct>>> GetTblFilledProducts()
+        public async Task<IActionResult> GetAllFilledProducts()
         {
-            return await _context.TblFilledProducts.ToListAsync();
+            var filledproducts = await _context.TblFilledProducts.ToListAsync();
+            return Ok(
+                new
+                {
+                    status = "success",
+                    message = "Get all filled products successful.",
+                    data = filledproducts
+                }
+            );
         }
 
         // GET: api/FilledProduct/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblFilledProduct>> GetTblFilledProduct(Guid id)
+        public async Task<IActionResult> GetFilledProductById(Guid id)
         {
             try
             {
@@ -41,7 +49,14 @@ namespace GasB360_server.Controllers
                     return NotFound();
                 }
 
-                return tblFilledProduct;
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get filled product by id successful.",
+                        data = tblFilledProduct
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -53,7 +68,7 @@ namespace GasB360_server.Controllers
         // PUT: api/FilledProduct/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblFilledProduct(
+        public async Task<IActionResult> UpdateFilledProduct(
             Guid id,
             TblFilledProduct tblFilledProduct
         )
@@ -63,11 +78,19 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblFilledProduct).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(tblFilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var updatedFilledProduct = await _context.TblFilledProducts.FindAsync(id);
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "update filled product by id successful.",
+                        data = updatedFilledProduct
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -81,14 +104,12 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/FilledProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblFilledProduct>> PostTblFilledProduct(
+        public async Task<IActionResult> AddNewFilledProduct(
             TblFilledProduct tblFilledProduct
         )
         {
@@ -98,9 +119,14 @@ namespace GasB360_server.Controllers
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(
-                    "GetTblFilledProduct",
+                    "GetFilledProductById",
                     new { id = tblFilledProduct.FilledProductId },
-                    tblFilledProduct
+                    new
+                    {
+                        status = "success",
+                        message = "Add new filled product successful.",
+                        data = tblFilledProduct
+                    }
                 );
             }
             catch (System.Exception ex)
@@ -112,7 +138,7 @@ namespace GasB360_server.Controllers
 
         // DELETE: api/FilledProduct/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblFilledProduct(Guid id)
+        public async Task<IActionResult> DeleteFilledProduct(Guid id)
         {
             try
             {
@@ -125,7 +151,14 @@ namespace GasB360_server.Controllers
                 _context.TblFilledProducts.Remove(tblFilledProduct);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete filled product by id successful.",
+                        data = tblFilledProduct
+                    }
+                );
             }
             catch (System.Exception ex)
             {

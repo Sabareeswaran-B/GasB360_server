@@ -20,19 +20,29 @@ namespace GasB360_server.Controllers
 
         private readonly IEmployeeService _EmployeeService;
 
-        public EmployeeController(GasB360Context context, IEmployeeService EmployeeService)
+        private readonly ICustomerService _customerService;
+
+        public EmployeeController(
+            GasB360Context context,
+            ICustomerService customerService,
+            IEmployeeService EmployeeService
+        )
         {
             _context = context;
+            _customerService = customerService;
             _EmployeeService = EmployeeService;
         }
 
         // GET: api/Employee
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblEmployee>>> GetTblEmployees()
+        public async Task<IActionResult> GetTblEmployees()
         {
             try
             {
-                return await _context.TblEmployees.ToListAsync();
+                var employee = await _context.TblEmployees.ToListAsync();
+                return Ok(
+                    new { status = "success", message = "Gell all customers", data = employee }
+                );
             }
             catch (System.Exception ex)
             {
@@ -42,8 +52,9 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Employee/5
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblEmployee>> GetTblEmployee(Guid id)
+        public async Task<IActionResult> GetEmployeeById(Guid id)
         {
             try
             {
@@ -54,7 +65,14 @@ namespace GasB360_server.Controllers
                     return NotFound();
                 }
 
-                return tblEmployee;
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "get customer by id Successful",
+                        data = tblEmployee
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -66,7 +84,7 @@ namespace GasB360_server.Controllers
         // PUT: api/Employee/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblEmployee(Guid id, TblEmployee tblEmployee)
+        public async Task<IActionResult> UpdateEmployee(Guid id, TblEmployee tblEmployee)
         {
             if (id != tblEmployee.EmployeeId)
             {
@@ -78,6 +96,65 @@ namespace GasB360_server.Controllers
                 var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
                 tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                if (!TblEmployeeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+
+            return NoContent();
+        }
+
+        //Admin Accepting the Connection Request
+        [HttpPut("{id}")]
+        public async Task<IActionResult> AcceptCustomerConnection(Guid id)
+        {
+            try
+            {
+                TblCustomer customer = await _context.TblCustomers
+                    .Where(c => c.Active == "true")
+                    .Where(c => c.CustomerId == id)
+                    .FirstOrDefaultAsync();
+                customer.Requested = "false";
+                customer.CustomerConnection += 1;
+                _context.Entry(customer).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                if (!TblEmployeeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+
+            return NoContent();
+        }
+
+        //Admin Rejecting the Connection Request
+        [HttpPut("{id}")]
+        public async Task<IActionResult> RejectCustomerConnection(Guid id)
+        {
+            try
+            {
+                TblCustomer customer = await _context.TblCustomers
+                    .Where(c => c.Active == "true")
+                    .Where(c => c.CustomerId == id)
+                    .FirstOrDefaultAsync();
+                customer.Requested = "false";
+                _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (System.Exception ex)
@@ -131,7 +208,7 @@ namespace GasB360_server.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(
-                "GetTblEmployee",
+                "GetEmployeeById",
                 new { id = tblEmployee.EmployeeId },
                 tblEmployee
             );
