@@ -50,12 +50,12 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Customer/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCustomerById(Guid id)
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetCustomerById(Guid customerId)
         {
             try
             {
-                var tblCustomer = await _context.TblCustomers.FindAsync(id);
+                var tblCustomer = await _context.TblCustomers.FindAsync(customerId);
 
                 if (tblCustomer == null)
                 {
@@ -80,10 +80,10 @@ namespace GasB360_server.Controllers
 
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(Guid id, TblCustomer tblCustomer)
+        [HttpPut("{customerId}")]
+        public async Task<IActionResult> UpdateCustomer(Guid customerId, TblCustomer tblCustomer)
         {
-            if (id != tblCustomer.CustomerId)
+            if (customerId != tblCustomer.CustomerId)
             {
                 return BadRequest();
             }
@@ -94,7 +94,7 @@ namespace GasB360_server.Controllers
                 tblCustomer.Password = hashPassword;
                 _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var customer = await _context.TblCustomers.FindAsync(id);
+                var customer = await _context.TblCustomers.FindAsync(customerId);
                 return Ok(
                     new
                     {
@@ -106,7 +106,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!IsCustomerExists(id))
+                if (!IsCustomerExists(customerId))
                 {
                     return NotFound();
                 }
@@ -119,14 +119,14 @@ namespace GasB360_server.Controllers
 
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> RequestConnection(Guid id)
+        [HttpPut("{customerId}")]
+        public async Task<IActionResult> RequestConnection(Guid customerId)
         {
             try
             {
                 TblCustomer customer = await _context.TblCustomers
                     .Where(c => c.Active == "true")
-                    .Where(c => c.CustomerId == id)
+                    .Where(c => c.CustomerId == customerId)
                     .FirstOrDefaultAsync();
                 customer.Requested = "true";
                 _context.Entry(customer).State = EntityState.Modified;
@@ -142,7 +142,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!IsCustomerExists(id))
+                if (!IsCustomerExists(customerId))
                 {
                     return NotFound();
                 }
@@ -168,7 +168,7 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = "Incorrect password!" });
                 var response = _customerService.Authenticate(customer);
                 return Ok(
-                    new { status = "success", message = "Login Successfull", data = response }
+                    new { status = "success", message = "Login Successful", data = response }
                 );
             }
             catch (System.Exception ex)
@@ -199,7 +199,7 @@ namespace GasB360_server.Controllers
 
                 return CreatedAtAction(
                     "GetCustomerById",
-                    new { id = tblCustomer.CustomerId },
+                    new { customerId = tblCustomer.CustomerId },
                     tblCustomer
                 );
             }
@@ -211,12 +211,12 @@ namespace GasB360_server.Controllers
         }
 
         // DELETE: api/Customer/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomerById(Guid id)
+        [HttpDelete("{customerId}")]
+        public async Task<IActionResult> DeleteCustomerById(Guid customerId)
         {
             try
             {
-                var tblCustomer = await _context.TblCustomers.FindAsync(id);
+                var tblCustomer = await _context.TblCustomers.FindAsync(customerId);
                 if (tblCustomer == null)
                 {
                     return NotFound();
@@ -236,9 +236,9 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool IsCustomerExists(Guid id)
+        private bool IsCustomerExists(Guid customerId)
         {
-            return _context.TblCustomers.Any(e => e.CustomerId == id);
+            return _context.TblCustomers.Any(e => e.CustomerId == customerId);
         }
     }
 }
