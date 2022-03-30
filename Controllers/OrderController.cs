@@ -152,7 +152,7 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblOrder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var Order=await _context.TblOrders.FindAsync(id);
+                var Order=await _context.TblOrders.FindAsync(orderId);
                 return Ok(
                     new
                     {
@@ -184,6 +184,7 @@ namespace GasB360_server.Controllers
             try
            {
                 tblOrder.OrderOtp=OrderOtpGenerator();
+                tblOrder.EmployeeId=await AssignEmployeeId();
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
@@ -244,6 +245,12 @@ namespace GasB360_server.Controllers
             Random random = new Random();
             int otp = random.Next(100000);
             return otp;
+        }
+
+        private async Task<Guid> AssignEmployeeId()
+        {
+            var employee = await _context.TblEmployees.Where(x => x.Active == "true").Include(x=>x.Role).Where(x=>x.Role.RoleType=="delivery").OrderBy(x => Guid.NewGuid()).FirstOrDefaultAsync();
+            return employee.EmployeeId;
         }
     }
 }
