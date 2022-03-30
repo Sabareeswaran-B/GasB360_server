@@ -10,7 +10,7 @@ using GasB360_server.Models;
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class FilledProductController : ControllerBase
     {
@@ -37,12 +37,12 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/FilledProduct/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetFilledProductById(Guid id)
+        [HttpGet("{filledProductId}")]
+        public async Task<IActionResult> GetFilledProductById(Guid filledProductId)
         {
             try
             {
-                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
 
                 if (tblFilledProduct == null)
                 {
@@ -67,13 +67,13 @@ namespace GasB360_server.Controllers
 
         // PUT: api/FilledProduct/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{filledProductId}")]
         public async Task<IActionResult> UpdateFilledProduct(
-            Guid id,
+            Guid filledProductId,
             TblFilledProduct tblFilledProduct
         )
         {
-            if (id != tblFilledProduct.FilledProductId)
+            if (filledProductId != tblFilledProduct.FilledProductId)
             {
                 return BadRequest();
             }
@@ -82,7 +82,7 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblFilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var updatedFilledProduct = await _context.TblFilledProducts.FindAsync(id);
+                var updatedFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
                 return Ok(
                     new
                     {
@@ -94,7 +94,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblFilledProductExists(id))
+                if (!TblFilledProductExists(filledProductId))
                 {
                     return NotFound();
                 }
@@ -120,7 +120,7 @@ namespace GasB360_server.Controllers
 
                 return CreatedAtAction(
                     "GetFilledProductById",
-                    new { id = tblFilledProduct.FilledProductId },
+                    new { filledProductId = tblFilledProduct.FilledProductId },
                     new
                     {
                         status = "success",
@@ -137,12 +137,12 @@ namespace GasB360_server.Controllers
         }
 
         // DELETE: api/FilledProduct/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFilledProduct(Guid id)
+        [HttpDelete("{filledProductId}")]
+        public async Task<IActionResult> DeleteFilledProduct(Guid filledProductId)
         {
             try
             {
-                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(id);
+                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
                 if (tblFilledProduct == null)
                 {
                     return NotFound();
@@ -167,9 +167,9 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblFilledProductExists(Guid id)
+        private bool TblFilledProductExists(Guid filledProductId)
         {
-            return _context.TblFilledProducts.Any(e => e.FilledProductId == id);
+            return _context.TblFilledProducts.Any(e => e.FilledProductId == filledProductId);
         }
     }
 }
