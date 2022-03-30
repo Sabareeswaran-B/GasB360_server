@@ -25,24 +25,25 @@ namespace GasB360_server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllDeliveries()
         {
-            try{
-                var deliveries= await _context.TblDeliveries.ToListAsync();
+            try
+            {
+                var deliveries = await _context.TblDeliveries.ToListAsync();
                 return Ok(
-                   new
+                    new
                     {
                         status = "success",
                         message = "Get all Deliverys successful.",
                         data = deliveries
                     }
-               );
+                );
             }
             catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
 
-            
+
 
         }
 
@@ -50,7 +51,8 @@ namespace GasB360_server.Controllers
         [HttpGet("{deliveryId}")]
         public async Task<IActionResult> GetDeliveryById(Guid deliveryId)
         {
-            try{
+            try
+            {
                 var delivery = await _context.TblDeliveries.FindAsync(deliveryId);
 
                 if (delivery == null)
@@ -66,31 +68,29 @@ namespace GasB360_server.Controllers
                         data = delivery
                     }
                 );
-
             }
             catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
-            
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/Delivery/5
 
-        // Remainder : 
+        // Remainder :
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetDeliveriesByEmployeeId(Guid employeeId)
         {
             try
             {
-                var Deliveries = await _context.TblDeliveries
+                var deliveries = await _context.TblDeliveries
                     .Where(a => a.Active == "true")
-                    .Include(a=>a.Order)
-                    .Where(a => a.Order.EmployeeId== employeeId)
+                    .Include(a => a.Order)
+                    .Where(a => a.Order.EmployeeId == employeeId)
                     .ToListAsync();
 
-                if (Deliveries== null)
+                if (deliveries == null)
                 {
                     return NotFound();
                 }
@@ -100,7 +100,7 @@ namespace GasB360_server.Controllers
                     {
                         status = "success",
                         message = "Get Deliveries by Employee id successful.",
-                        data = Deliveries
+                        data = deliveries
                     }
                 );
             }
@@ -110,7 +110,6 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
 
         // PUT: api/Delivery/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -125,7 +124,7 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblDelivery).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var Delivery=await _context.TblDeliveries.FindAsync(deliveryId);
+                var Delivery = await _context.TblDeliveries.FindAsync(deliveryId);
                 return Ok(
                     new
                     {
@@ -144,8 +143,7 @@ namespace GasB360_server.Controllers
                 else
                 {
                     Sentry.SentrySdk.CaptureException(ex);
-                    return BadRequest(new{status="Failed",message = ex.Message});
-                    
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
         }
@@ -155,57 +153,55 @@ namespace GasB360_server.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewDelivery(TblDelivery tblDelivery)
         {
-            try{
+            try
+            {
                 _context.TblDeliveries.Add(tblDelivery);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetDeliveryById", new { deliveryId = tblDelivery.DeliveryId },
-                new
+                return CreatedAtAction(
+                    "GetDeliveryById",
+                    new { deliveryId = tblDelivery.DeliveryId },
+                    new
                     {
                         status = "success",
                         message = "Add new order successful.",
                         data = tblDelivery
-                    }  );
-
+                    }
+                );
             }
             catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
 
-            
+
         }
 
         // DELETE: api/Delivery/5
         [HttpDelete("{deliveryId}")]
         public async Task<IActionResult> DeleteDelivery(Guid deliveryId)
         {
-            try{
-                var tblDelivery = await _context.TblDeliveries.FindAsync(deliveryId);
-            if (tblDelivery == null)
+            try
             {
-                return NotFound();
-            }
+                var tblDelivery = await _context.TblDeliveries.FindAsync(deliveryId);
+                if (tblDelivery == null)
+                {
+                    return NotFound();
+                }
 
-            _context.TblDeliveries.Remove(tblDelivery);
-            await _context.SaveChangesAsync();
+                _context.TblDeliveries.Remove(tblDelivery);
+                await _context.SaveChangesAsync();
 
-            return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delete delivery by id successful."
-                    }
+                return Ok(
+                    new { status = "success", message = "Delete delivery by id successful." }
                 );
-
             }
             catch (System.Exception ex)
-           {
-               Sentry.SentrySdk.CaptureException(ex);
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
-            
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         private bool IsDeliveryExists(Guid deliveryId)
