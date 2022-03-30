@@ -23,56 +23,78 @@ namespace GasB360_server.Controllers
 
         // GET: api/Role
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblRole>>> GetTblRoles()
+        public async Task<IActionResult> GetAllRoles()
         {
             try
-           {
-               return await _context.TblRoles.ToListAsync();
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            {
+                var role = await _context.TblRoles.ToListAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all role successful.",
+                        data = role
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { status = "Failed", message = ex.Message });
+            }
         }
 
         // GET: api/Role/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblRole>> GetTblRole(Guid id)
+        public async Task<IActionResult> GetRoleById(Guid id)
         {
-             try
-           {
-              var tblRole = await _context.TblRoles.FindAsync(id);
-
-            if (tblRole == null)
+            try
             {
-                return NotFound();
-            }
+                var tblRole = await _context.TblRoles.FindAsync(id);
 
-            return tblRole;
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                if (tblRole == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get role by id successful.",
+                        data =tblRole
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { status = "Failed", message = ex.Message });
+            }
         }
 
         // PUT: api/Role/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblRole(Guid id, TblRole tblRole)
+        public async Task<IActionResult> UpdateRole(Guid id, TblRole tblRole)
         {
             if (id != tblRole.RoleId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(tblRole).State = EntityState.Modified;
 
             try
             {
+            _context.Entry(tblRole).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 var productcategory =await _context.TblRoles .FindAsync(id);
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update role successful.",
+                        data = productcategory
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -82,56 +104,66 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                   return BadRequest(new{status="Failed",message = ex.Message});
-
+                    return BadRequest(new { status = "Failed", message = ex.Message });
                 }
             }
 
-            return NoContent();
+   
         }
 
         // POST: api/Role
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblRole>> PostTblRole(TblRole tblRole)
+        public async Task<IActionResult> AddRole(TblRole tblRole)
         {
-          
-             try
-           {
-                 _context.TblRoles.Add(tblRole);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblRoles.Add(tblRole);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblRole", new { id = tblRole.RoleId }, tblRole);
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                return CreatedAtAction("GetRoleById",
+                 new { id = tblRole.RoleId }, 
+                 new
+                    {
+                        status = "success",
+                        message = "Add new role successful.",
+                        data = tblRole
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { status = "Failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/Role/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblRole(Guid id)
+        public async Task<IActionResult> DeleteRole(Guid id)
         {
             try
-           {
-             var tblRole = await _context.TblRoles.FindAsync(id);
-            if (tblRole == null)
             {
-                return NotFound();
+                var tblRole = await _context.TblRoles.FindAsync(id);
+                if (tblRole == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblRoles.Remove(tblRole);
+                await _context.SaveChangesAsync();
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete role by id successful."
+                    }
+                );
             }
-
-            _context.TblRoles.Remove(tblRole);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { status = "Failed", message = ex.Message });
+            }
         }
 
         private bool TblRoleExists(Guid id)
