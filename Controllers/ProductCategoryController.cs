@@ -27,158 +27,166 @@ namespace GasB360_server.Controllers
         public async Task<IActionResult> GetAllProductCategories()
         {
             // return await _context.TblProductCategories.ToListAsync();
-             try
-           {
-                var productcategory  =  await _context.TblProductCategories.ToListAsync();
-                 return Ok(
+            try
+            {
+                var productCategory = await _context.TblProductCategories.ToListAsync();
+                return Ok(
                     new
                     {
                         status = "success",
                         message = "Get all product category successful.",
-                        data = productcategory
-                    }
-                );
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status=" Failed",message = ex.Message});
-           }
-        }
-
-        // GET: api/ProductCategory/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductCategoryById(Guid id)
-        {
-                try
-           {
-               var productcategory = await _context.TblProductCategories.FindAsync(id);
-
-            if (productcategory == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Get product category by id successful.",
-                        data =productcategory
-                    }
-                );
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
-        }
-
-        // PUT: api/ProductCategory/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductCategory(Guid id, TblProductCategory tblProductCategory)
-        {
-            if (id != tblProductCategory.ProductId)
-            {
-                return BadRequest();
-            }
-
-
-            try
-            {
-            _context.Entry(tblProductCategory).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                var productcategory =await _context.TblProductCategories.FindAsync(id);
-                 return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Update product category successful.",
-                        data = productcategory
+                        data = productCategory
                     }
                 );
             }
             catch (System.Exception ex)
             {
-                if (!TblProductCategoryExists(id))
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
+        // GET: api/ProductCategory/5
+        [HttpGet("{productCategoryId}")]
+        public async Task<IActionResult> GetProductCategoryById(Guid productCategoryId)
+        {
+            try
+            {
+                var productCategory = await _context.TblProductCategories.FindAsync(
+                    productCategoryId
+                );
+
+                if (productCategory == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get product category by id successful.",
+                        data = productCategory
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
+        // PUT: api/ProductCategory/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{productCategoryId}")]
+        public async Task<IActionResult> UpdateProductCategory(
+            Guid productCategoryId,
+            TblProductCategory tblProductCategory
+        )
+        {
+            if (productCategoryId != tblProductCategory.ProductId)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                _context.Entry(tblProductCategory).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                var productCategory = await _context.TblProductCategories.FindAsync(
+                    productCategoryId
+                );
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update product category successful.",
+                        data = productCategory
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                if (!IsProductCategoryExists(productCategoryId))
                 {
                     return NotFound();
                 }
                 else
                 {
-                   return BadRequest(new{status="Failed",message = ex.Message});
-
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
 
-        
+
         }
 
         // POST: api/ProductCategory
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblProductCategory>> AddProductCategory(TblProductCategory tblProductCategory)
+        public async Task<IActionResult> AddProductCategory(
+            TblProductCategory tblProductCategory
+        )
         {
-          
             try
-           {
-             _context.TblProductCategories.Add(tblProductCategory);
-            await _context.SaveChangesAsync();
+            {
+                _context.TblProductCategories.Add(tblProductCategory);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProductCategoryById",
-             new { id = tblProductCategory.ProductId },
-               new
+                return CreatedAtAction(
+                    "GetProductCategoryById",
+                    new { productCategoryId = tblProductCategory.ProductId },
+                    new
                     {
                         status = "success",
                         message = "Add new product category successful.",
                         data = tblProductCategory
                     }
-              );
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/ProductCategory/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProductCategory(Guid id)
+        [HttpDelete("{productCategoryId}")]
+        public async Task<IActionResult> DeleteProductCategory(Guid productCategoryId)
         {
-           
-
-              try
-           {
-                var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
-            if (tblProductCategory == null)
+            try
             {
-                return NotFound();
-            }
+                var tblProductCategory = await _context.TblProductCategories.FindAsync(
+                    productCategoryId
+                );
+                if (tblProductCategory == null)
+                {
+                    return NotFound();
+                }
 
-            _context.TblProductCategories.Remove(tblProductCategory);
-            await _context.SaveChangesAsync();
+                _context.TblProductCategories.Remove(tblProductCategory);
+                await _context.SaveChangesAsync();
 
-            return Ok(
+                return Ok(
                     new
                     {
                         status = "success",
                         message = "Delete product category by id successful."
                     }
                 );
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
-        private bool TblProductCategoryExists(Guid id)
+        private bool IsProductCategoryExists(Guid productCategoryId)
         {
-            return _context.TblProductCategories.Any(e => e.ProductId == id);
+            return _context.TblProductCategories.Any(e => e.ProductId == productCategoryId);
         }
     }
 }
