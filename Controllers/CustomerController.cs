@@ -32,7 +32,6 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Customer
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
@@ -40,7 +39,7 @@ namespace GasB360_server.Controllers
             {
                 var customers = await _context.TblCustomers.ToListAsync();
                 return Ok(
-                    new { status = "success", message = "Gell all customers", data = customers }
+                    new { status = "success", message = "Get all customers", data = customers }
                 );
             }
             catch (System.Exception ex)
@@ -51,7 +50,6 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Customer/5
-        [Authorize("admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
