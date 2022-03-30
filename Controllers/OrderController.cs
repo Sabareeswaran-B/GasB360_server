@@ -183,7 +183,9 @@ namespace GasB360_server.Controllers
         {
             try
            {
+                tblOrder.OrderOtp=OrderOtpGenerator();
                 _context.TblOrders.Add(tblOrder);
+
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction("GetOrderById", new { orderId = tblOrder.OrderId },
@@ -235,6 +237,13 @@ namespace GasB360_server.Controllers
         private bool IsOrderExists(Guid orderId)
         {
             return _context.TblOrders.Any(e => e.OrderId == orderId);
+        }
+
+        private int OrderOtpGenerator()
+        {
+            Random random = new Random();
+            int otp = random.Next(100000);
+            return otp;
         }
     }
 }
