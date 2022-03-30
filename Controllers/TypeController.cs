@@ -23,11 +23,19 @@ namespace GasB360_server.Controllers
 
         // GET: api/Type
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblType>>> GetTblTypes()
+        public async Task<IActionResult> GetAllTypes()
         {
               try
            {
-              return await _context.TblTypes.ToListAsync();
+              var type = await _context.TblTypes.ToListAsync();
+              return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all type successful.",
+                        data = type
+                    }
+                );
            }
            catch (System.Exception ex)
            {
@@ -38,7 +46,7 @@ namespace GasB360_server.Controllers
 
         // GET: api/Type/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblType>> GetTblType(Guid id)
+        public async Task<IActionResult> GetTypeById(Guid id)
         {
           
                try
@@ -50,7 +58,14 @@ namespace GasB360_server.Controllers
                 return NotFound();
             }
 
-            return tblType;
+            return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get type by id successful.",
+                        data =tblType
+                    }
+                );
            }
            catch (System.Exception ex)
            {
@@ -62,7 +77,7 @@ namespace GasB360_server.Controllers
         // PUT: api/Type/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblType(Guid id, TblType tblType)
+        public async Task<IActionResult> updateType(Guid id, TblType tblType)
         {
             if (id != tblType.TypeId)
             {
@@ -74,6 +89,15 @@ namespace GasB360_server.Controllers
             {
             _context.Entry(tblType).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 var type =await _context.TblRoles.FindAsync(id);
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update type successful.",
+                        data = type
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -87,19 +111,27 @@ namespace GasB360_server.Controllers
                 }
             }
 
-            return NoContent();
+           
         }
 
         // POST: api/Type
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblType>> PostTblType(TblType tblType)
+        public async Task<IActionResult>AddType(TblType tblType)
         {
                try
            {
             _context.TblTypes.Add(tblType);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetTblType", new { id = tblType.TypeId }, tblType);
+            return CreatedAtAction("GetTypeById",
+             new { id = tblType.TypeId },
+                new
+                    {
+                        status = "success",
+                        message = "Add new type successful.",
+                        data = tblType
+                    }
+              );
            }
            catch (System.Exception ex)
            {   
@@ -109,7 +141,7 @@ namespace GasB360_server.Controllers
 
         // DELETE: api/Type/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblType(Guid id)
+        public async Task<IActionResult> DeleteType(Guid id)
         {
            
                  try
@@ -123,7 +155,13 @@ namespace GasB360_server.Controllers
             _context.TblTypes.Remove(tblType);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+           return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete type by id successful."
+                    }
+                );
            }
            catch (System.Exception ex)
            {   
