@@ -86,13 +86,13 @@ namespace GasB360_server.Controllers
             {
             _context.Entry(tblRole).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 var productcategory =await _context.TblRoles .FindAsync(id);
+                 var role =await _context.TblRoles.FindAsync(id);
                  return Ok(
                     new
                     {
                         status = "success",
                         message = "Update role successful.",
-                        data = productcategory
+                        data = role
                     }
                 );
             }
