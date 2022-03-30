@@ -10,7 +10,7 @@ using GasB360_server.Models;
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class OrderController : ControllerBase
     {
