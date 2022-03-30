@@ -1,4 +1,5 @@
 #nullable disable
+using System.Security.AccessControl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using GasB360_server.Models;
 
 namespace GasB360_server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class ProductCategoryController : ControllerBase
     {
@@ -23,39 +24,54 @@ namespace GasB360_server.Controllers
 
         // GET: api/ProductCategory
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblProductCategory>>> GetTblProductCategories()
+        public async Task<IActionResult> GetAllProductCategories()
         {
             // return await _context.TblProductCategories.ToListAsync();
              try
            {
-               return await _context.TblProductCategories.ToListAsync();
+                var productcategory  =  await _context.TblProductCategories.ToListAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all product category successful.",
+                        data = productcategory
+                    }
+                );
            }
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Failed",message = ex.Message});
+               return BadRequest(new{status="Product Category Get request Failed",message = ex.Message});
            }
         }
 
         // GET: api/ProductCategory/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TblProductCategory>> GetTblProductCategory(Guid id)
+        public async Task<IActionResult> GetTblProductCategory(Guid id)
         {
                 try
            {
-               var tblProductCategory = await _context.TblProductCategories.FindAsync(id);
+               var productcategory = await _context.TblProductCategories.FindAsync(id);
 
-            if (tblProductCategory == null)
+            if (productcategory == null)
             {
                 return NotFound();
             }
 
-            return tblProductCategory;
+            return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get product category by id successful.",
+                        data =productcategory
+                    }
+                );
            }
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Failed",message = ex.Message});
+               return BadRequest(new{status="Product Category Get By Id request Failed",message = ex.Message});
            }
         }
 
@@ -69,11 +85,20 @@ namespace GasB360_server.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tblProductCategory).State = EntityState.Modified;
 
             try
             {
+            _context.Entry(tblProductCategory).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var productcategory =await _context.TblProductCategories.FindAsync(id);
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update product category successful.",
+                        data = productcategory
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -83,12 +108,12 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                   return BadRequest(new{status="Failed",message = ex.Message});
+                   return BadRequest(new{status="Product Category Update request Failed",message = ex.Message});
 
                 }
             }
 
-            return NoContent();
+        
         }
 
         // POST: api/ProductCategory
@@ -102,12 +127,20 @@ namespace GasB360_server.Controllers
                 _context.TblProductCategories.Add(tblProductCategory);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblProductCategory", new { id = tblProductCategory.ProductId }, tblProductCategory);
+            return CreatedAtAction("GetTblProductCategory",
+             new { id = tblProductCategory.ProductId },
+               new
+                    {
+                        status = "success",
+                        message = "Add new product category successful.",
+                        data = tblProductCategory
+                    }
+              );
            }
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Failed",message = ex.Message});
+               return BadRequest(new{status="Product Category Add request Failed",message = ex.Message});
            }
         }
 
@@ -128,12 +161,18 @@ namespace GasB360_server.Controllers
             _context.TblProductCategories.Remove(tblProductCategory);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delete product category by id successful."
+                    }
+                );
            }
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Failed",message = ex.Message});
+               return BadRequest(new{status="Product Category Delete request Failed",message = ex.Message});
            }
         }
 
