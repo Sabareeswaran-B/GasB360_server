@@ -22,7 +22,11 @@ namespace GasB360_server.Controllers
 
         private readonly ICustomerService _customerService;
 
-        public EmployeeController(GasB360Context context, ICustomerService customerService, IEmployeeService EmployeeService)
+        public EmployeeController(
+            GasB360Context context,
+            ICustomerService customerService,
+            IEmployeeService EmployeeService
+        )
         {
             _context = context;
             _customerService = customerService;
@@ -139,7 +143,7 @@ namespace GasB360_server.Controllers
             return NoContent();
         }
 
-    //Admin Rejecting the Connection Request
+        //Admin Rejecting the Connection Request
         [HttpPut("{id}")]
         public async Task<IActionResult> RejectCustomerConnection(Guid id)
         {
@@ -167,7 +171,6 @@ namespace GasB360_server.Controllers
 
             return NoContent();
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Login(AuthRequest request)
