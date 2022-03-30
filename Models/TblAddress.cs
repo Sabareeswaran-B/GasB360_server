@@ -5,6 +5,11 @@ namespace GasB360_server.Models
 {
     public partial class TblAddress
     {
+        public TblAddress()
+        {
+            TblOrders = new HashSet<TblOrder>();
+        }
+
         public Guid AddressId { get; set; }
         public string? AddressStreetName { get; set; }
         public string? AddressCity { get; set; }
@@ -15,5 +20,6 @@ namespace GasB360_server.Models
         public Guid? CustomerId { get; set; }
 
         public virtual TblCustomer? Customer { get; set; }
+        public virtual ICollection<TblOrder>? TblOrders { get; set; }
     }
 }

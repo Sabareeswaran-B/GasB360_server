@@ -19,6 +19,7 @@ namespace GasB360_server.Models
         public virtual DbSet<TblAddress> TblAddresses { get; set; } = null!;
         public virtual DbSet<TblBranch> TblBranches { get; set; } = null!;
         public virtual DbSet<TblCustomer> TblCustomers { get; set; } = null!;
+        public virtual DbSet<TblDelivery> TblDeliveries { get; set; } = null!;
         public virtual DbSet<TblEmployee> TblEmployees { get; set; } = null!;
         public virtual DbSet<TblFilledProduct> TblFilledProducts { get; set; } = null!;
         public virtual DbSet<TblOrder> TblOrders { get; set; } = null!;
@@ -31,6 +32,7 @@ namespace GasB360_server.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=tcp:gasb360.database.windows.net,1433;Initial Catalog=GasB360;Persist Security Info=False;User ID=admin@gasb360@gasb360;Password=Kovai.co;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
@@ -178,6 +180,41 @@ namespace GasB360_server.Models
                     .HasConstraintName("FK__tbl_custo__type___0E6E26BF");
             });
 
+            modelBuilder.Entity<TblDelivery>(entity =>
+            {
+                entity.HasKey(e => e.DeliveryId)
+                    .HasName("PK__tbl_deli__1C5CF4F5A1FB5E15");
+
+                entity.ToTable("tbl_delivery");
+
+                entity.Property(e => e.DeliveryId)
+                    .HasColumnName("delivery_id")
+                    .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Active)
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
+                    .HasColumnName("active")
+                    .HasDefaultValueSql("('true')");
+
+                entity.Property(e => e.DeliveryDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("delivery_date")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.DeliveryStatus)
+                    .IsUnicode(false)
+                    .HasColumnName("delivery_status")
+                    .HasDefaultValueSql("('Delivered')");
+
+                entity.Property(e => e.OrderId).HasColumnName("order_id");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.TblDeliveries)
+                    .HasForeignKey(d => d.OrderId)
+                    .HasConstraintName("FK__tbl_deliv__order__47A6A41B");
+            });
+
             modelBuilder.Entity<TblEmployee>(entity =>
             {
                 entity.HasKey(e => e.EmployeeId)
@@ -273,9 +310,13 @@ namespace GasB360_server.Models
                     .HasColumnName("active")
                     .HasDefaultValueSql("('true')");
 
+                entity.Property(e => e.AddressId).HasColumnName("address_id");
+
                 entity.Property(e => e.CustomerId).HasColumnName("customer_id");
 
                 entity.Property(e => e.EmployeeId).HasColumnName("employee_id");
+
+                entity.Property(e => e.FilledProductId).HasColumnName("filled_product_id");
 
                 entity.Property(e => e.OrderDate)
                     .HasColumnType("datetime")
@@ -288,13 +329,17 @@ namespace GasB360_server.Models
 
                 entity.Property(e => e.OrderStatus)
                     .IsUnicode(false)
-                    .HasColumnName("order_status");
+                    .HasColumnName("order_status")
+                    .HasDefaultValueSql("('Processing')");
 
                 entity.Property(e => e.OrderTotalprice)
                     .HasColumnName("order_totalprice")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.ProductId).HasColumnName("product_id");
+                entity.HasOne(d => d.Address)
+                    .WithMany(p => p.TblOrders)
+                    .HasForeignKey(d => d.AddressId)
+                    .HasConstraintName("FK__tbl_order__addre__40058253");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.TblOrders)
@@ -306,10 +351,10 @@ namespace GasB360_server.Models
                     .HasForeignKey(d => d.EmployeeId)
                     .HasConstraintName("FK__tbl_order__emplo__395884C4");
 
-                entity.HasOne(d => d.Product)
+                entity.HasOne(d => d.FilledProduct)
                     .WithMany(p => p.TblOrders)
-                    .HasForeignKey(d => d.ProductId)
-                    .HasConstraintName("FK__tbl_order__produ__3864608B");
+                    .HasForeignKey(d => d.FilledProductId)
+                    .HasConstraintName("FK__tbl_order__fille__3F115E1A");
             });
 
             modelBuilder.Entity<TblProductCategory>(entity =>
