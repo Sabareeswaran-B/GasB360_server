@@ -32,7 +32,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Role GET request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -54,7 +54,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Role GET BY ID request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -82,7 +82,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                   return BadRequest(new{status="Role GET BY ID request Failed",message = ex.Message});
+                   return BadRequest(new{status="Failed",message = ex.Message});
 
                 }
             }
@@ -106,7 +106,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Role PUT request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
@@ -130,7 +130,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Role DELETE request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
