@@ -41,7 +41,7 @@ namespace GasB360_server.Controllers
             {
                 var employee = await _context.TblEmployees.ToListAsync();
                 return Ok(
-                    new { status = "success", message = "Gell all customers", data = employee }
+                    new { status = "success", message = "Get all customers", data = employee }
                 );
             }
             catch (System.Exception ex)
@@ -53,12 +53,12 @@ namespace GasB360_server.Controllers
 
         // GET: api/Employee/5
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetEmployeeById(Guid id)
+        [HttpGet("{employeeId}")]
+        public async Task<IActionResult> GetEmployeeById(Guid employeeId)
         {
             try
             {
-                var tblEmployee = await _context.TblEmployees.FindAsync(id);
+                var tblEmployee = await _context.TblEmployees.FindAsync(employeeId);
 
                 if (tblEmployee == null)
                 {
@@ -83,10 +83,10 @@ namespace GasB360_server.Controllers
 
         // PUT: api/Employee/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEmployee(Guid id, TblEmployee tblEmployee)
+        [HttpPut("{employeeId}")]
+        public async Task<IActionResult> UpdateEmployee(Guid employeeId, TblEmployee tblEmployee)
         {
-            if (id != tblEmployee.EmployeeId)
+            if (employeeId != tblEmployee.EmployeeId)
             {
                 return BadRequest();
             }
@@ -100,7 +100,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(id))
+                if (!TblEmployeeExists(employeeId))
                 {
                     return NotFound();
                 }
@@ -114,14 +114,14 @@ namespace GasB360_server.Controllers
         }
 
         //Admin Accepting the Connection Request
-        [HttpPut("{id}")]
-        public async Task<IActionResult> AcceptCustomerConnection(Guid id)
+        [HttpPut("{employeeId}")]
+        public async Task<IActionResult> AcceptCustomerConnection(Guid employeeId)
         {
             try
             {
                 TblCustomer customer = await _context.TblCustomers
                     .Where(c => c.Active == "true")
-                    .Where(c => c.CustomerId == id)
+                    .Where(c => c.CustomerId == employeeId)
                     .FirstOrDefaultAsync();
                 customer.Requested = "false";
                 customer.CustomerConnection += 1;
@@ -130,7 +130,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(id))
+                if (!TblEmployeeExists(employeeId))
                 {
                     return NotFound();
                 }
@@ -144,14 +144,14 @@ namespace GasB360_server.Controllers
         }
 
         //Admin Rejecting the Connection Request
-        [HttpPut("{id}")]
-        public async Task<IActionResult> RejectCustomerConnection(Guid id)
+        [HttpPut("{customerId}")]
+        public async Task<IActionResult> RejectCustomerConnection(Guid customerId)
         {
             try
             {
                 TblCustomer customer = await _context.TblCustomers
                     .Where(c => c.Active == "true")
-                    .Where(c => c.CustomerId == id)
+                    .Where(c => c.CustomerId == customerId)
                     .FirstOrDefaultAsync();
                 customer.Requested = "false";
                 _context.Entry(customer).State = EntityState.Modified;
@@ -159,7 +159,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(id))
+                if (!TblEmployeeExists(customerId))
                 {
                     return NotFound();
                 }
@@ -187,7 +187,7 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = "Incorrect password!" });
                 var response = _EmployeeService.Authenticate(Employee);
                 return Ok(
-                    new { status = "success", message = "Login Successfull", data = response }
+                    new { status = "success", message = "Login Successful", data = response }
                 );
             }
             catch (System.Exception ex)
@@ -200,7 +200,7 @@ namespace GasB360_server.Controllers
         // POST: api/Employee
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblEmployee>> PostTblEmployee(TblEmployee tblEmployee)
+        public async Task<IActionResult> AddNewEmployee(TblEmployee tblEmployee)
         {
             var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
             tblEmployee.Password = hashPassword;
@@ -209,18 +209,23 @@ namespace GasB360_server.Controllers
 
             return CreatedAtAction(
                 "GetEmployeeById",
-                new { id = tblEmployee.EmployeeId },
-                tblEmployee
+                new { employeeId = tblEmployee.EmployeeId },
+                new
+                {
+                    status = "success",
+                    message = "Add new employee Successful",
+                    data = tblEmployee
+                }
             );
         }
 
         // DELETE: api/Employee/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblEmployee(Guid id)
+        public async Task<IActionResult> DeleteTblEmployee(Guid employeeId)
         {
             try
             {
-                var tblEmployee = await _context.TblEmployees.FindAsync(id);
+                var tblEmployee = await _context.TblEmployees.FindAsync(employeeId);
                 if (tblEmployee == null)
                 {
                     return NotFound();
@@ -238,9 +243,9 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblEmployeeExists(Guid id)
+        private bool TblEmployeeExists(Guid employeeId)
         {
-            return _context.TblEmployees.Any(e => e.EmployeeId == id);
+            return _context.TblEmployees.Any(e => e.EmployeeId == employeeId);
         }
     }
 }
