@@ -23,119 +23,159 @@ namespace GasB360_server.Controllers
 
         // GET: api/UnfilledProduct
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TblUnfilledProduct>>> GetTblUnfilledProducts()
+        public async Task<IActionResult> GetAllUnfilledProducts()
         {
-             try
-           {
-              return await _context.TblUnfilledProducts.ToListAsync();
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            try
+            {
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all unfilled products successful.",
+                        data = await _context.TblUnfilledProducts.ToListAsync()
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // GET: api/UnfilledProduct/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TblUnfilledProduct>> GetTblUnfilledProduct(Guid id)
+        [HttpGet("{unfilledProductId}")]
+        public async Task<IActionResult> GetUnfilledProductById(
+            Guid unfilledProductId
+        )
         {
-               try
-           {
-              var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
-
-            if (tblUnfilledProduct == null)
+            try
             {
-                return NotFound();
-            }
+                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
+                    unfilledProductId
+                );
 
-            return tblUnfilledProduct;
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                if (tblUnfilledProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get unfilled product by id successful.",
+                        data = tblUnfilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // PUT: api/UnfilledProduct/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblUnfilledProduct(Guid id, TblUnfilledProduct tblUnfilledProduct)
+        [HttpPut("{unfilledProductId}")]
+        public async Task<IActionResult> UpdateUnfilledProduct(
+            Guid unfilledProductId,
+            TblUnfilledProduct tblUnfilledProduct
+        )
         {
-            if (id != tblUnfilledProduct.UnfilledProductId)
+            if (unfilledProductId != tblUnfilledProduct.UnfilledProductId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(tblUnfilledProduct).State = EntityState.Modified;
-
             try
             {
+                _context.Entry(tblUnfilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var updatedUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
+                    unfilledProductId
+                );
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Update unfilled product successful.",
+                        data = updatedUnfilledProduct
+                    }
+                );
             }
             catch (System.Exception ex)
             {
-                if (!TblUnfilledProductExists(id))
+                if (!IsUnfilledProductExists(unfilledProductId))
                 {
                     return NotFound();
                 }
                 else
                 {
-           return BadRequest(new{status="Failed",message = ex.Message});
-
+                    Sentry.SentrySdk.CaptureException(ex);
+                    return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/UnfilledProduct
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblUnfilledProduct>> PostTblUnfilledProduct(TblUnfilledProduct tblUnfilledProduct)
+        public async Task<IActionResult> AddNewUnfilledProduct(
+            TblUnfilledProduct tblUnfilledProduct
+        )
         {
-            
-             try
-           {
-              _context.TblUnfilledProducts.Add(tblUnfilledProduct);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.TblUnfilledProducts.Add(tblUnfilledProduct);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblUnfilledProduct", new { id = tblUnfilledProduct.UnfilledProductId }, tblUnfilledProduct);
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+                return CreatedAtAction(
+                    "GetUnfilledProductById",
+                    new { unFilledProductId = tblUnfilledProduct.UnfilledProductId },
+                    new
+                    {
+                        status = "success",
+                        message = "Add new unfilled product successful.",
+                        data = tblUnfilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         // DELETE: api/UnfilledProduct/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblUnfilledProduct(Guid id)
+        [HttpDelete("{unFilledProductId}")]
+        public async Task<IActionResult> DeleteUnfilledProduct(Guid unFilledProductId)
         {
-          
-               try
-           {
-             var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(id);
-            if (tblUnfilledProduct == null)
+            try
             {
-                return NotFound();
+                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
+                    unFilledProductId
+                );
+                if (tblUnfilledProduct == null)
+                {
+                    return NotFound();
+                }
+
+                _context.TblUnfilledProducts.Remove(tblUnfilledProduct);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { status = "success", message = "Delete unfilled product by id successful." });
             }
-
-            _context.TblUnfilledProducts.Remove(tblUnfilledProduct);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-           }
-           catch (System.Exception ex)
-           {
-               
-               return BadRequest(new{status="Failed",message = ex.Message});
-           }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
-        private bool TblUnfilledProductExists(Guid id)
+        private bool IsUnfilledProductExists(Guid id)
         {
             return _context.TblUnfilledProducts.Any(e => e.UnfilledProductId == id);
         }
