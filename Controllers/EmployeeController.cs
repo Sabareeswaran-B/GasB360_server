@@ -114,14 +114,14 @@ namespace GasB360_server.Controllers
         }
 
         //Admin Accepting the Connection Request
-        [HttpPut("{employeeId}")]
-        public async Task<IActionResult> AcceptCustomerConnection(Guid employeeId)
+        [HttpPut("{customerId}")]
+        public async Task<IActionResult> AcceptCustomerConnection(Guid customerId)
         {
             try
             {
                 TblCustomer customer = await _context.TblCustomers
                     .Where(c => c.Active == "true")
-                    .Where(c => c.CustomerId == employeeId)
+                    .Where(c => c.CustomerId == customerId)
                     .FirstOrDefaultAsync();
                 customer.Requested = "false";
                 customer.CustomerConnection += 1;
@@ -130,7 +130,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(employeeId))
+                if (!TblEmployeeExists(customerId))
                 {
                     return NotFound();
                 }
