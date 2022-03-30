@@ -35,7 +35,7 @@ namespace GasB360_server.Controllers
 
         // GET: api/Employee
         [HttpGet]
-        public async Task<IActionResult> GetTblEmployees()
+        public async Task<IActionResult> GetAllEmployees()
         {
             try
             {
@@ -100,7 +100,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(employeeId))
+                if (!IsEmployeeExists(employeeId))
                 {
                     return NotFound();
                 }
@@ -111,6 +111,31 @@ namespace GasB360_server.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllConnectionRequest()
+        {
+            try
+            {
+                var customer = await _context.TblCustomers
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.Requested == "true")
+                    .ToListAsync();
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all connection request successful.",
+                        data = customer
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
         }
 
         //Admin Accepting the Connection Request
@@ -130,7 +155,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(customerId))
+                if (!IsEmployeeExists(customerId))
                 {
                     return NotFound();
                 }
@@ -159,7 +184,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!TblEmployeeExists(customerId))
+                if (!IsEmployeeExists(customerId))
                 {
                     return NotFound();
                 }
@@ -221,7 +246,7 @@ namespace GasB360_server.Controllers
 
         // DELETE: api/Employee/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblEmployee(Guid employeeId)
+        public async Task<IActionResult> DeleteEmployee(Guid employeeId)
         {
             try
             {
@@ -243,7 +268,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool TblEmployeeExists(Guid employeeId)
+        private bool IsEmployeeExists(Guid employeeId)
         {
             return _context.TblEmployees.Any(e => e.EmployeeId == employeeId);
         }
