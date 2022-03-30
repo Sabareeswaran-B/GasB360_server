@@ -42,13 +42,13 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Product Category Get request Failed",message = ex.Message});
+               return BadRequest(new{status=" Failed",message = ex.Message});
            }
         }
 
         // GET: api/ProductCategory/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTblProductCategory(Guid id)
+        public async Task<IActionResult> GetProductCategoryById(Guid id)
         {
                 try
            {
@@ -71,14 +71,14 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Product Category Get By Id request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
         // PUT: api/ProductCategory/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTblProductCategory(Guid id, TblProductCategory tblProductCategory)
+        public async Task<IActionResult> UpdateProductCategory(Guid id, TblProductCategory tblProductCategory)
         {
             if (id != tblProductCategory.ProductId)
             {
@@ -108,7 +108,7 @@ namespace GasB360_server.Controllers
                 }
                 else
                 {
-                   return BadRequest(new{status="Product Category Update request Failed",message = ex.Message});
+                   return BadRequest(new{status="Failed",message = ex.Message});
 
                 }
             }
@@ -119,15 +119,15 @@ namespace GasB360_server.Controllers
         // POST: api/ProductCategory
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TblProductCategory>> PostTblProductCategory(TblProductCategory tblProductCategory)
+        public async Task<ActionResult<TblProductCategory>> AddProductCategory(TblProductCategory tblProductCategory)
         {
           
             try
            {
-                _context.TblProductCategories.Add(tblProductCategory);
+             _context.TblProductCategories.Add(tblProductCategory);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTblProductCategory",
+            return CreatedAtAction("GetProductCategoryById",
              new { id = tblProductCategory.ProductId },
                new
                     {
@@ -140,13 +140,13 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Product Category Add request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
         // DELETE: api/ProductCategory/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTblProductCategory(Guid id)
+        public async Task<IActionResult> DeleteProductCategory(Guid id)
         {
            
 
@@ -172,7 +172,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                
-               return BadRequest(new{status="Product Category Delete request Failed",message = ex.Message});
+               return BadRequest(new{status="Failed",message = ex.Message});
            }
         }
 
