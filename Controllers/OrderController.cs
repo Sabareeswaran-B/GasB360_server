@@ -33,11 +33,7 @@ namespace GasB360_server.Controllers
            catch (System.Exception ex)
            {
                Console.WriteLine(ex);
-<<<<<<< HEAD
-               return BadRequest(new{status="Order GET request Failed",message = ex.Message});
-=======
                return BadRequest(new{status="Failed",message = ex.Message});
->>>>>>> 8eca5b46b875354df7245c449f69e9deee6052b6
            }
         }
 
