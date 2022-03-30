@@ -45,12 +45,12 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Address/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCustomerAddressById(Guid id)
+        [HttpGet("{addressId}")]
+        public async Task<IActionResult> GetCustomerAddressById(Guid addressId)
         {
             try
             {
-                var address = await _context.TblAddresses.FindAsync(id);
+                var address = await _context.TblAddresses.FindAsync(addressId);
 
                 if (address == null)
                 {
@@ -74,14 +74,14 @@ namespace GasB360_server.Controllers
         }
 
         // GET: api/Address/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAddressByCustomerId(Guid id)
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetAddressByCustomerId(Guid customerId)
         {
             try
             {
                 var address = await _context.TblAddresses
                     .Where(a => a.Active == "true")
-                    .Where(a => a.CustomerId == id)
+                    .Where(a => a.CustomerId == customerId)
                     .ToListAsync();
 
                 if (address == null)
@@ -108,9 +108,9 @@ namespace GasB360_server.Controllers
         // PUT: api/Address/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomerAddress(Guid id, TblAddress tblAddress)
+        public async Task<IActionResult> UpdateCustomerAddress(Guid addressId, TblAddress tblAddress)
         {
-            if (id != tblAddress.AddressId)
+            if (addressId != tblAddress.AddressId)
             {
                 return BadRequest();
             }
@@ -119,7 +119,7 @@ namespace GasB360_server.Controllers
             {
                 _context.Entry(tblAddress).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                var address = await _context.TblAddresses.FindAsync(id);
+                var address = await _context.TblAddresses.FindAsync(addressId);
                 return Ok(
                     new
                     {
@@ -131,7 +131,7 @@ namespace GasB360_server.Controllers
             }
             catch (System.Exception ex)
             {
-                if (!IsAddressExists(id))
+                if (!IsAddressExists(addressId))
                 {
                     return NotFound();
                 }
@@ -146,7 +146,7 @@ namespace GasB360_server.Controllers
         // POST: api/Address
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<IActionResult>  AddNewCustomerAddress(TblAddress tblAddress)
+        public async Task<IActionResult> AddNewCustomerAddress(TblAddress tblAddress)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace GasB360_server.Controllers
 
                 return CreatedAtAction(
                     "GetAddressByCustomerId",
-                    new { id = tblAddress.AddressId },
+                    new { customerId = tblAddress.AddressId },
                     new
                     {
                         status = "success",
@@ -172,12 +172,12 @@ namespace GasB360_server.Controllers
         }
 
         // DELETE: api/Address/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomerAddress(Guid id)
+        [HttpDelete("{addressId}")]
+        public async Task<IActionResult> DeleteCustomerAddress(Guid addressId)
         {
             try
             {
-                var tblAddress = await _context.TblAddresses.FindAsync(id);
+                var tblAddress = await _context.TblAddresses.FindAsync(addressId);
                 if (tblAddress == null)
                 {
                     return NotFound();
@@ -201,9 +201,9 @@ namespace GasB360_server.Controllers
             }
         }
 
-        private bool IsAddressExists(Guid id)
+        private bool IsAddressExists(Guid addressId)
         {
-            return _context.TblAddresses.Any(e => e.AddressId == id);
+            return _context.TblAddresses.Any(e => e.AddressId == addressId);
         }
     }
 }
