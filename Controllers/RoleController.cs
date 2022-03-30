@@ -29,27 +29,23 @@ namespace GasB360_server.Controllers
             {
                 var role = await _context.TblRoles.ToListAsync();
                 return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Get all role successful.",
-                        data = role
-                    }
+                    new { status = "success", message = "Get all role successful.", data = role }
                 );
             }
             catch (System.Exception ex)
             {
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
 
         // GET: api/Role/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRoleById(Guid id)
+        [HttpGet("{roleId}")]
+        public async Task<IActionResult> GetRoleById(Guid roleId)
         {
             try
             {
-                var tblRole = await _context.TblRoles.FindAsync(id);
+                var tblRole = await _context.TblRoles.FindAsync(roleId);
 
                 if (tblRole == null)
                 {
@@ -61,54 +57,50 @@ namespace GasB360_server.Controllers
                     {
                         status = "success",
                         message = "Get role by id successful.",
-                        data =tblRole
+                        data = tblRole
                     }
                 );
             }
             catch (System.Exception ex)
             {
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
 
         // PUT: api/Role/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRole(Guid id, TblRole tblRole)
+        [HttpPut("{roleId}")]
+        public async Task<IActionResult> UpdateRole(Guid roleId, TblRole tblRole)
         {
-            if (id != tblRole.RoleId)
+            if (roleId != tblRole.RoleId)
             {
                 return BadRequest();
             }
 
-
             try
             {
-            _context.Entry(tblRole).State = EntityState.Modified;
+                _context.Entry(tblRole).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 var role =await _context.TblRoles.FindAsync(id);
-                 return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Update role successful.",
-                        data = role
-                    }
+                var role = await _context.TblRoles.FindAsync(roleId);
+                return Ok(
+                    new { status = "success", message = "Update role successful.", data = role }
                 );
             }
             catch (System.Exception ex)
             {
-                if (!TblRoleExists(id))
+                if (!IsRoleExists(roleId))
                 {
                     return NotFound();
                 }
                 else
                 {
+                    Sentry.SentrySdk.CaptureException(ex);
                     return BadRequest(new { status = "Failed", message = ex.Message });
                 }
             }
 
-   
+
         }
 
         // POST: api/Role
@@ -121,29 +113,26 @@ namespace GasB360_server.Controllers
                 _context.TblRoles.Add(tblRole);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetRoleById",
-                 new { id = tblRole.RoleId }, 
-                 new
-                    {
-                        status = "success",
-                        message = "Add new role successful.",
-                        data = tblRole
-                    }
+                return CreatedAtAction(
+                    "GetRoleById",
+                    new { roleId = tblRole.RoleId },
+                    new { status = "success", message = "Add new role successful.", data = tblRole }
                 );
             }
             catch (System.Exception ex)
             {
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
 
         // DELETE: api/Role/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRole(Guid id)
+        [HttpDelete("{roleId}")]
+        public async Task<IActionResult> DeleteRole(Guid roleId)
         {
             try
             {
-                var tblRole = await _context.TblRoles.FindAsync(id);
+                var tblRole = await _context.TblRoles.FindAsync(roleId);
                 if (tblRole == null)
                 {
                     return NotFound();
@@ -152,23 +141,18 @@ namespace GasB360_server.Controllers
                 _context.TblRoles.Remove(tblRole);
                 await _context.SaveChangesAsync();
 
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delete role by id successful."
-                    }
-                );
+                return Ok(new { status = "success", message = "Delete role by id successful." });
             }
             catch (System.Exception ex)
             {
+                Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
 
-        private bool TblRoleExists(Guid id)
+        private bool IsRoleExists(Guid roleId)
         {
-            return _context.TblRoles.Any(e => e.RoleId == id);
+            return _context.TblRoles.Any(e => e.RoleId == roleId);
         }
     }
 }
