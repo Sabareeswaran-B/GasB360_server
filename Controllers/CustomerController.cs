@@ -197,7 +197,11 @@ namespace GasB360_server.Controllers
                 return CreatedAtAction(
                     "GetCustomerById",
                     new { customerId = tblCustomer.CustomerId },
-                    tblCustomer
+                    new {
+                        status = "success",
+                        message = "Add new customer successful",
+                        data = tblCustomer
+                    }
                 );
             }
             catch (System.Exception ex)

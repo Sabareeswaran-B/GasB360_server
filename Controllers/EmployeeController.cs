@@ -245,7 +245,7 @@ namespace GasB360_server.Controllers
         }
 
         //API To Delete The Employee By Passing EmployeeId As Parameter
-        [HttpDelete("{id}")]
+        [HttpDelete("{employeeId}")]
         public async Task<IActionResult> DeleteEmployee(Guid employeeId)
         {
             try
