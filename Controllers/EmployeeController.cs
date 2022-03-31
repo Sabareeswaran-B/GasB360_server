@@ -152,6 +152,14 @@ namespace GasB360_server.Controllers
                 customer.CustomerConnection += 1;
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Accept connection request successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -165,7 +173,7 @@ namespace GasB360_server.Controllers
                 }
             }
 
-            return NoContent();
+           
         }
 
         //Admin Rejecting the Connection Request
@@ -181,6 +189,14 @@ namespace GasB360_server.Controllers
                 customer.Requested = "false";
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Reject Connection request successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -194,7 +210,7 @@ namespace GasB360_server.Controllers
                 }
             }
 
-            return NoContent();
+
         }
 
         [HttpPost]
