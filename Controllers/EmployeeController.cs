@@ -97,6 +97,14 @@ namespace GasB360_server.Controllers
                 tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all connection request successful.",
+                        data = tblEmployee
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -152,6 +160,14 @@ namespace GasB360_server.Controllers
                 customer.CustomerConnection += 1;
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Accept connection request successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -165,7 +181,7 @@ namespace GasB360_server.Controllers
                 }
             }
 
-            return NoContent();
+           
         }
 
         //API To EmployeeAdmin Rejecting The Connection Request By Passing CustomerId As Parameter
@@ -181,6 +197,14 @@ namespace GasB360_server.Controllers
                 customer.Requested = "false";
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Reject Connection request successful.",
+                        data = customer
+                    }
+                );
             }
             catch (System.Exception ex)
             {
@@ -194,7 +218,7 @@ namespace GasB360_server.Controllers
                 }
             }
 
-            return NoContent();
+
         }
         //API To Employee Login By Passing AuthRequest Object As Parameter
         [HttpPost]
