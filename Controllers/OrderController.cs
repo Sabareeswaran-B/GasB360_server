@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using System.Net.Http.Headers;
 
 namespace GasB360_server.Controllers
 {
@@ -180,8 +181,24 @@ namespace GasB360_server.Controllers
             {
                 tblOrder.OrderOtp = OrderOtpGenerator();
                 tblOrder.EmployeeId = await AssignEmployeeId();
-                // await AddUnfilledProduct(tblOrder.FilledProductId);
-                // await RemovefilledProduct(tblOrder.FilledProductId);
+                var customer = await _context.TblCustomers.FindAsync(tblOrder.CustomerId);
+
+                //Send Otp to the customer
+                using var client = new HttpClient();
+                var sentID = "TXTIND";
+                var message = $"Your order from GasB360 is placed successfully, OTP for your order is, \n OTP : {tblOrder.OrderOtp}";
+                var phone = customer.CustomerPhone;
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
+                );
+                client.DefaultRequestHeaders.Add(
+                    "authorization",
+                    "xOKaf9FuYNR2O1KlfcoYtIXyS1ALi5ymXAgZt4Mb88zNvMH0lmAidKugEMN9"
+                );
+                var res = await client.PostAsJsonAsync(
+                    "https://www.fast2sms.com/dev/bulkV2",
+                    new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
+                );
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
@@ -227,19 +244,22 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Order Already Exists or Not By Passing OrderId As Parameter
         private bool IsOrderExists(Guid orderId)
         {
             return _context.TblOrders.Any(e => e.OrderId == orderId);
         }
-        // Function To Generate an OTP And Assign On Creating Order Request 
+
+        // Function To Generate an OTP And Assign On Creating Order Request
         private int OrderOtpGenerator()
         {
             Random random = new Random();
             int otp = random.Next(100000);
             return otp;
         }
-        //Function To Assign The EmployeeId Under Certain Condition On Creating Order Request  
+
+        //Function To Assign The EmployeeId Under Certain Condition On Creating Order Request
         private async Task<Guid> AssignEmployeeId()
         {
             var employee = await _context.TblEmployees
