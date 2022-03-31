@@ -107,7 +107,7 @@ namespace GasB360_server.Controllers
 
         // PUT: api/Address/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{addressId}")]
         public async Task<IActionResult> UpdateCustomerAddress(Guid addressId, TblAddress tblAddress)
         {
             if (addressId != tblAddress.AddressId)
