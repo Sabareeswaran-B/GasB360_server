@@ -117,8 +117,6 @@ namespace GasB360_server.Controllers
                     return BadRequest(new { status = "failed", message = ex.Message });
                 }
             }
-
-            return NoContent();
         }
         //API To Get All The Connection Requests
         [HttpGet]
