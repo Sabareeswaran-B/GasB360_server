@@ -97,6 +97,14 @@ namespace GasB360_server.Controllers
                 tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get all connection request successful.",
+                        data = tblEmployee
+                    }
+                );
             }
             catch (System.Exception ex)
             {
