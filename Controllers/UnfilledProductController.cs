@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/UnfilledProduct
+        // API To Get All Of The UnfilledProducts
         [HttpGet]
         public async Task<IActionResult> GetAllUnfilledProducts()
         {
@@ -43,7 +43,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/UnfilledProduct/5
+        // API To Get The UnFilledProduct By Passing UnFilledProductId As Parameter
         [HttpGet("{unfilledProductId}")]
         public async Task<IActionResult> GetUnfilledProductById(Guid unfilledProductId)
         {
@@ -74,8 +74,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/UnfilledProduct/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The UnFilledProduct Details By Passing UnFilledProductId As Parameter
+
         [HttpPut("{unfilledProductId}")]
         public async Task<IActionResult> UpdateUnfilledProduct(
             Guid unfilledProductId,
@@ -116,6 +116,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+        //API To Add UnFilled Product In The Stock By Passing UnFilledProductId/StockToAdd As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToAdd}")]
         public async Task<IActionResult> AddUnFilledProductStock(
@@ -153,6 +154,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+        //API To Remove UnFilled Product In The Stock By Passing UnFilledProductId/StockToRemove As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToRemove}")]
         public async Task<IActionResult> RemoveUnFilledProductStock(
@@ -198,8 +200,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/UnfilledProduct
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New UnFilled Product  By Passing tblUnFilledProduct Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddNewUnfilledProduct(
             TblUnfilledProduct tblUnfilledProduct
@@ -228,7 +230,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/UnfilledProduct/5
+        //API To Delete The UnFilled Product By Passing UnFilledProductId As Parameter
         [HttpDelete("{unFilledProductId}")]
         public async Task<IActionResult> DeleteUnfilledProduct(Guid unFilledProductId)
         {
@@ -259,10 +261,11 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+        // Function To Check Whether The UnFilledProduct Already Exists or Not By Passing UnFilledProductId As Parameter
 
-        private bool IsUnfilledProductExists(Guid id)
+        private bool IsUnfilledProductExists(Guid unfilledProductId)
         {
-            return _context.TblUnfilledProducts.Any(e => e.UnfilledProductId == id);
+            return _context.TblUnfilledProducts.Any(e => e.UnfilledProductId == unfilledProductId);
         }
     }
 }

@@ -22,11 +22,10 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/ProductCategory
+        // API To Get All Of The Product Categories
         [HttpGet]
         public async Task<IActionResult> GetAllProductCategories()
         {
-            // return await _context.TblProductCategories.ToListAsync();
             try
             {
                 var productCategory = await _context.TblProductCategories.ToListAsync();
@@ -46,7 +45,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/ProductCategory/5
+        // API To Get The Product Category By Passing ProductCategoryId As Parameter
         [HttpGet("{productCategoryId}")]
         public async Task<IActionResult> GetProductCategoryById(Guid productCategoryId)
         {
@@ -77,8 +76,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/ProductCategory/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Product Category Details By Passing ProductCategoryId As Parameter
+
         [HttpPut("{productCategoryId}")]
         public async Task<IActionResult> UpdateProductCategory(
             Guid productCategoryId,
@@ -122,8 +121,8 @@ namespace GasB360_server.Controllers
 
         }
 
-        // POST: api/ProductCategory
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Product Category By Passing tblProductCategory Object As Parameter
+        
         [HttpPost]
         public async Task<IActionResult> AddProductCategory(
             TblProductCategory tblProductCategory
@@ -152,7 +151,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/ProductCategory/5
+        //API To Delete The Product Category By Passing ProductCategoryId As Parameter
         [HttpDelete("{productCategoryId}")]
         public async Task<IActionResult> DeleteProductCategory(Guid productCategoryId)
         {
@@ -183,6 +182,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+        // Function To Check Whether The Product Category Already Exists or Not By Passing ProductCategoryId As Parameter
 
         private bool IsProductCategoryExists(Guid productCategoryId)
         {

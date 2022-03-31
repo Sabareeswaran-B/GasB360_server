@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Delivery
+        //API To Get All Of The Deliveries
         [HttpGet]
         public async Task<IActionResult> GetAllDeliveries()
         {
@@ -47,7 +47,7 @@ namespace GasB360_server.Controllers
 
         }
 
-        // GET: api/Delivery/5
+        //API To Get Delivery By Passing DeliveryId As Parameter
         [HttpGet("{deliveryId}")]
         public async Task<IActionResult> GetDeliveryById(Guid deliveryId)
         {
@@ -76,9 +76,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Delivery/5
-
-        // Remainder :
+        //API To Get Deliveries By Employee By Passing EmployeeId As Parameter
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetDeliveriesByEmployeeId(Guid employeeId)
         {
@@ -111,8 +109,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Delivery/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Delivery Details By Passing DeliveryId As Parameter
         [HttpPut("{deliveryId}")]
         public async Task<IActionResult> UpdateDelivery(Guid deliveryId, TblDelivery tblDelivery)
         {
@@ -148,13 +145,13 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Delivery
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Delivery By Passing tblDelivery Object As Parameter
         [HttpPost]
         public async Task<IActionResult> AddNewDelivery(TblDelivery tblDelivery)
         {
             try
             {
+            
                 _context.TblDeliveries.Add(tblDelivery);
                 await _context.SaveChangesAsync();
 
@@ -178,7 +175,7 @@ namespace GasB360_server.Controllers
 
         }
 
-        // DELETE: api/Delivery/5
+        //API To Delete The Delivery By Passing DeliveryId As Parameter
         [HttpDelete("{deliveryId}")]
         public async Task<IActionResult> DeleteDelivery(Guid deliveryId)
         {
@@ -203,7 +200,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        //Function To Check Whether Delivery Already Exists Or Not By Passing DeliveryId As Parameter
         private bool IsDeliveryExists(Guid deliveryId)
         {
             return _context.TblDeliveries.Any(e => e.DeliveryId == deliveryId);

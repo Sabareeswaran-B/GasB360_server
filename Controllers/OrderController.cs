@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Order
+        // API To Get All Of The Orders
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -44,7 +44,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Order/5
+        // API To Get The Order By Passing OrderId As Parameter
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById(Guid orderId)
         {
@@ -73,9 +73,9 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Order/5
+        // API To Get The Ordesr By Customer By Passing CustomerId As Parameter
         [HttpGet("{customerId}")]
-        public async Task<IActionResult> GetOrderByCustomerId(Guid customerId)
+        public async Task<IActionResult> GetOrdersByCustomerId(Guid customerId)
         {
             try
             {
@@ -105,7 +105,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Order/5
+        // API To Get The Orders By Employee By Passing EmployeeId As Parameter
+
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetOrderByEmployeeId(Guid employeeId)
         {
@@ -113,6 +114,7 @@ namespace GasB360_server.Controllers
             {
                 var orders = await _context.TblOrders
                     .Where(a => a.Active == "true")
+                    .Where(a => a.OrderStatus != "Delivered")
                     .Where(a => a.EmployeeId == employeeId)
                     .ToListAsync();
 
@@ -137,8 +139,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Order/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Order Details By Passing OrderId As Parameter
+
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateOrder(Guid orderId, TblOrder tblOrder)
         {
@@ -169,8 +171,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Order
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Order By Passing tblOrder Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddNewOrder(TblOrder tblOrder)
         {
@@ -178,8 +180,8 @@ namespace GasB360_server.Controllers
             {
                 tblOrder.OrderOtp = OrderOtpGenerator();
                 tblOrder.EmployeeId = await AssignEmployeeId();
-                await AddUnfilledProduct(tblOrder.FilledProductId);
-                await RemovefilledProduct(tblOrder.FilledProductId);
+                // await AddUnfilledProduct(tblOrder.FilledProductId);
+                // await RemovefilledProduct(tblOrder.FilledProductId);
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
@@ -202,7 +204,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Order/5
+        //API To Delete The Order By Passing OrderId As Parameter
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrder(Guid orderId)
         {
@@ -225,19 +227,19 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        // Function To Check Whether The Order Already Exists or Not By Passing OrderId As Parameter
         private bool IsOrderExists(Guid orderId)
         {
             return _context.TblOrders.Any(e => e.OrderId == orderId);
         }
-
+        // Function To Generate an OTP And Assign On Creating Order Request 
         private int OrderOtpGenerator()
         {
             Random random = new Random();
             int otp = random.Next(100000);
             return otp;
         }
-
+        //Function To Assign The EmployeeId Under Certain Condition On Creating Order Request  
         private async Task<Guid> AssignEmployeeId()
         {
             var employee = await _context.TblEmployees

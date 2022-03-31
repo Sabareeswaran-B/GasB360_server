@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Role
+        // API To Get All Of The Roles
         [HttpGet]
         public async Task<IActionResult> GetAllRoles()
         {
@@ -39,7 +39,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Role/5
+        // API To Get The Role By Passing RoleId As Parameter
         [HttpGet("{roleId}")]
         public async Task<IActionResult> GetRoleById(Guid roleId)
         {
@@ -68,8 +68,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Role/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Role Details By Passing RoleId As Parameter
+
         [HttpPut("{roleId}")]
         public async Task<IActionResult> UpdateRole(Guid roleId, TblRole tblRole)
         {
@@ -103,8 +103,8 @@ namespace GasB360_server.Controllers
 
         }
 
-        // POST: api/Role
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Role By Passing tblRole Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddRole(TblRole tblRole)
         {
@@ -126,7 +126,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Role/5
+        //API To Delete The Role By Passing RoleId As Parameter
         [HttpDelete("{roleId}")]
         public async Task<IActionResult> DeleteRole(Guid roleId)
         {
@@ -149,6 +149,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
+        // Function To Check Whether The Role Already Exists or Not By Passing RoleId As Parameter
 
         private bool IsRoleExists(Guid roleId)
         {

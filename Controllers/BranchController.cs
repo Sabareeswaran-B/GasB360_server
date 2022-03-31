@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Branch
+        //API To Get All Of The Gas Stations Branches
         [HttpGet]
         public async Task<IActionResult> GetAllBranches()
         {
@@ -37,7 +37,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Branch/5
+        //API To Get The Branch By Passing BranchId As Parameter
         [HttpGet("{branchId}")]
         public async Task<IActionResult> GetBranchById(Guid branchId)
         {
@@ -61,8 +61,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Branch/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Branch Details By Passing BranchId As Parameter
         [HttpPut("{branchId}")]
         public async Task<IActionResult> UpdateBranch(Guid branchId, TblBranch tblBranch)
         {
@@ -94,8 +93,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Branch
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Branch By Passing tblBranch Object As Parameter
         [HttpPost]
         public async Task<IActionResult> AddNewBranch(TblBranch tblBranch)
         {
@@ -122,7 +120,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Branch/5
+        //API To Delete The Branch By Passing BranchId As Parameter
         [HttpDelete("{branchId}")]
         public async Task<IActionResult> DeleteBranch(Guid branchId)
         {
@@ -151,7 +149,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        //Function To Check Whether The Branch Already Exists Or Not By Passing BranchId As Parameter
         private bool IsBranchExists(Guid branchId)
         {
             return _context.TblBranches.Any(e => e.BranchId == branchId);

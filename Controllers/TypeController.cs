@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Type
+        // API To Get All Of The Types
         [HttpGet]
         public async Task<IActionResult> GetAllTypes()
         {
@@ -39,7 +39,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Type/5
+        // API To Get The Type By Passing TypeId As Parameter
         [HttpGet("{typeId}")]
         public async Task<IActionResult> GetTypeById(Guid typeId)
         {
@@ -68,8 +68,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Type/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Type Details By Passing TypeId As Parameter
+
         [HttpPut("{typeId}")]
         public async Task<IActionResult> updateType(Guid typeId, TblType tblType)
         {
@@ -103,8 +103,8 @@ namespace GasB360_server.Controllers
 
         }
 
-        // POST: api/Type
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Type By Passing tblType Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddType(TblType tblType)
         {
@@ -125,7 +125,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Type/5
+        //API To Delete The Type By Passing TypeId As Parameter
         [HttpDelete("{typeId}")]
         public async Task<IActionResult> DeleteType(Guid typeId)
         {
@@ -148,6 +148,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
+        // Function To Check Whether The Type Already Exists or Not By Passing TypeId As Parameter
 
         private bool IsTypeExists(Guid typeId)
         {

@@ -21,7 +21,7 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/FilledProduct
+        // API To Get All Of The Filled Products
         [HttpGet]
         public async Task<IActionResult> GetAllFilledProducts()
         {
@@ -36,7 +36,7 @@ namespace GasB360_server.Controllers
             );
         }
 
-        // GET: api/FilledProduct/5
+        // API To Get The Filled Product By Passing FilledProductId As Parameter
         [HttpGet("{filledProductId}")]
         public async Task<IActionResult> GetFilledProductById(Guid filledProductId)
         {
@@ -65,8 +65,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/FilledProduct/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Filled Product Details By Passing FilledProductId As Parameter
+
         [HttpPut("{filledProductId}")]
         public async Task<IActionResult> UpdateFilledProduct(
             Guid filledProductId,
@@ -108,6 +108,7 @@ namespace GasB360_server.Controllers
             }
         }
 
+        //API To Add Filled Product In The Stock By Passing FilledProductId/StockToAdd As Parameter
         [HttpPut("{filledProductId}/{stocksToAdd}")]
         public async Task<IActionResult> AddFilledProductStock(
             Guid filledProductId,
@@ -142,7 +143,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
-
+        //API To Remove Filled Product In The Stock By Passing FilledProductId/StockToRemove As Parameter
         [HttpPut("{filledProductId}/{stocksToRemove}")]
         public async Task<IActionResult> RemoveFilledProductStock(
             Guid filledProductId,
@@ -185,8 +186,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/FilledProduct
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Filled Product  By Passing tblFilledProduct Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddNewFilledProduct(TblFilledProduct tblFilledProduct)
         {
@@ -213,7 +214,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/FilledProduct/5
+        //API To Delete The Filled Product By Passing FilledProductId As Parameter
         [HttpDelete("{filledProductId}")]
         public async Task<IActionResult> DeleteFilledProduct(Guid filledProductId)
         {
@@ -243,6 +244,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+        // Function To Check Whether The FilledProduct Already Exists or Not By Passing FilledProductId As Parameter
 
         private bool isFilledProductExists(Guid filledProductId)
         {

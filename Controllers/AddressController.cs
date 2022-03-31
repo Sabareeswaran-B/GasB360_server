@@ -21,9 +21,9 @@ namespace GasB360_server.Controllers
             _context = context;
         }
 
-        // GET: api/Address
+        // API To Get All Of The Customers Addresses
         [HttpGet]
-        public async Task<IActionResult> GetAllCustomerAddresses()
+        public async Task<IActionResult> GetAllCustomersAddresses()
         {
             try
             {
@@ -44,7 +44,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Address/5
+        // API To Get The Customer Address By Passing AddressId As Parameter
         [HttpGet("{addressId}")]
         public async Task<IActionResult> GetCustomerAddressById(Guid addressId)
         {
@@ -73,7 +73,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Address/5
+        // API To Get The Customer Address By Passing CustomerId As Parameter
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetAddressByCustomerId(Guid customerId)
         {
@@ -105,9 +105,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Address/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        //API To Update The Customer Address Details By Passing AddressId As Parameter
+        [HttpPut("{addressId}")]
         public async Task<IActionResult> UpdateCustomerAddress(Guid addressId, TblAddress tblAddress)
         {
             if (addressId != tblAddress.AddressId)
@@ -143,8 +142,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Address
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Customer Address By Passing tblAddress Object As Parameter
         [HttpPost]
         public async Task<IActionResult> AddNewCustomerAddress(TblAddress tblAddress)
         {
@@ -171,7 +169,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Address/5
+        //API To Delete The Customer Address By Passing AddressId As Parameter
         [HttpDelete("{addressId}")]
         public async Task<IActionResult> DeleteCustomerAddress(Guid addressId)
         {
@@ -200,7 +198,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        // Function To Check Whether The Address Already Exists or Not By Passing AddressId As Parameter
         private bool IsAddressExists(Guid addressId)
         {
             return _context.TblAddresses.Any(e => e.AddressId == addressId);

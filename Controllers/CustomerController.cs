@@ -31,7 +31,7 @@ namespace GasB360_server.Controllers
             _mailService = mailService;
         }
 
-        // GET: api/Customer
+        //API To Get All Of The Customers
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
@@ -49,7 +49,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Customer/5
+        //API To Get The Customer By Passing CustomerId As Parameter
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetCustomerById(Guid customerId)
         {
@@ -78,8 +78,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Customer/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Customer Details By Passing CustomerId As Parameter
         [HttpPut("{customerId}")]
         public async Task<IActionResult> UpdateCustomer(Guid customerId, TblCustomer tblCustomer)
         {
@@ -117,8 +116,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Customer/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update Request Connection By Passing CustomerId As Parameter
         [HttpPut("{customerId}")]
         public async Task<IActionResult> RequestConnection(Guid customerId)
         {
@@ -152,7 +150,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
-
+        //API To Customer Login By Passing AuthRequest Object As Parameter
         [HttpPost]
         public async Task<IActionResult> Login(AuthRequest request)
         {
@@ -178,8 +176,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Customer
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Customer By Passing tblCustomer Object As Parameter
         [HttpPost]
         public async Task<IActionResult> AddNewCustomer(TblCustomer tblCustomer)
         {
@@ -210,7 +207,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // DELETE: api/Customer/5
+        //API To Delete The Customer By Passing CustomerId As Parameter
         [HttpDelete("{customerId}")]
         public async Task<IActionResult> DeleteCustomerById(Guid customerId)
         {
@@ -235,7 +232,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        //Function To Check Whether The Customer Already Exists Or Not By Passing CustomerId As Parameter
         private bool IsCustomerExists(Guid customerId)
         {
             return _context.TblCustomers.Any(e => e.CustomerId == customerId);

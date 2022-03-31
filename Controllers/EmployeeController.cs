@@ -32,8 +32,8 @@ namespace GasB360_server.Controllers
             _customerService = customerService;
             _EmployeeService = EmployeeService;
         }
-
-        // GET: api/Employee
+        
+        // API To Get All Of The Employees
         [HttpGet]
         public async Task<IActionResult> GetAllEmployees()
         {
@@ -51,7 +51,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // GET: api/Employee/5
+        // API To Get The Employee By Passing EmployeeId As Parameter
 
         [HttpGet("{employeeId}")]
         public async Task<IActionResult> GetEmployeeById(Guid employeeId)
@@ -81,8 +81,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // PUT: api/Employee/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Update The Employee Details By Passing EmployeeId As Parameter
+
         [HttpPut("{employeeId}")]
         public async Task<IActionResult> UpdateEmployee(Guid employeeId, TblEmployee tblEmployee)
         {
@@ -112,9 +112,9 @@ namespace GasB360_server.Controllers
 
             return NoContent();
         }
-
+        //API To Get All The Connection Requests
         [HttpGet]
-        public async Task<IActionResult> GetAllConnectionRequest()
+        public async Task<IActionResult> GetAllConnectionRequests()
         {
             try
             {
@@ -138,7 +138,7 @@ namespace GasB360_server.Controllers
             }
         }
 
-        //Admin Accepting the Connection Request
+        //API To EmployeeAdmin Accepting The Connection Request By Passing CustomerId As Parameter
         [HttpPut("{customerId}")]
         public async Task<IActionResult> AcceptCustomerConnection(Guid customerId)
         {
@@ -168,7 +168,7 @@ namespace GasB360_server.Controllers
             return NoContent();
         }
 
-        //Admin Rejecting the Connection Request
+        //API To EmployeeAdmin Rejecting The Connection Request By Passing CustomerId As Parameter
         [HttpPut("{customerId}")]
         public async Task<IActionResult> RejectCustomerConnection(Guid customerId)
         {
@@ -196,7 +196,7 @@ namespace GasB360_server.Controllers
 
             return NoContent();
         }
-
+        //API To Employee Login By Passing AuthRequest Object As Parameter
         [HttpPost]
         public async Task<IActionResult> Login(AuthRequest request)
         {
@@ -222,8 +222,8 @@ namespace GasB360_server.Controllers
             }
         }
 
-        // POST: api/Employee
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //API To Add New Employee By Passing tblEmployee Object As Parameter
+
         [HttpPost]
         public async Task<IActionResult> AddNewEmployee(TblEmployee tblEmployee)
         {
@@ -244,7 +244,7 @@ namespace GasB360_server.Controllers
             );
         }
 
-        // DELETE: api/Employee/5
+        //API To Delete The Employee By Passing EmployeeId As Parameter
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployee(Guid employeeId)
         {
@@ -267,7 +267,8 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
-
+        // Function To Check Whether The Employee Already Exists or Not By Passing EmployeeId As Parameter
+  
         private bool IsEmployeeExists(Guid employeeId)
         {
             return _context.TblEmployees.Any(e => e.EmployeeId == employeeId);
