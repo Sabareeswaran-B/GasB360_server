@@ -184,6 +184,9 @@ namespace GasB360_server.Controllers
             {
                 var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
                 tblCustomer.Password = hashPassword;
+                var role = await _context.TblRoles.Where(x => x.RoleType == "customer").FirstOrDefaultAsync();
+                tblCustomer.RoleId = role.RoleId;
+                Console.WriteLine(tblCustomer.RoleId);
                 _context.TblCustomers.Add(tblCustomer);
                 await _context.SaveChangesAsync();
 
