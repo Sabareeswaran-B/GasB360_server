@@ -281,7 +281,9 @@ namespace GasB360_server.Controllers
                 _context.TblEmployees.Remove(tblEmployee);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new { status = "success", message = "Delete employee by id successful." }
+                );
             }
             catch (System.Exception ex)
             {
