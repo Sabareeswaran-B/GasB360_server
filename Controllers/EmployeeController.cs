@@ -39,7 +39,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var employee = await _context.TblEmployees.ToListAsync();
+                 var employee = from ai in _context.TblEmployees select new {
+                    EmployeeId = ai.EmployeeId,
+                    EmployeeName = ai.EmployeeName ,
+                    RoleId = ai.RoleId,
+                    active = ai.Active,
+                    employeePhone = ai.EmployeePhone,
+                    employeeEmail = ai.EmployeeEmail,
+                    password = ai.Password,
+                    role = ai.Role 
+                    
+                };
                 return Ok(
                     new { status = "success", message = "Get all customers", data = employee }
                 );
