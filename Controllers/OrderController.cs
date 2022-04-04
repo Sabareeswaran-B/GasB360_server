@@ -117,6 +117,11 @@ namespace GasB360_server.Controllers
                     .Where(a => a.Active == "true")
                     .Where(a => a.OrderStatus != "Delivered")
                     .Where(a => a.EmployeeId == employeeId)
+                    .Include(x => x.Address)
+                    .Include(x => x.Customer)
+                    .Include(x => x.Employee)
+                    .Include(x => x.FilledProduct)
+                    .Include(x => x.FilledProduct.ProductCategory)
                     .ToListAsync();
 
                 if (orders == null)
@@ -304,8 +309,9 @@ namespace GasB360_server.Controllers
         }
         //Function To Check Order Delivery By OTP  By Passing OrderId And Otp As Parameter
         private async Task<IActionResult> OrderDeliveryCheckByOtp(Guid orderId,int inputOtp){
-            var order = await _context.TblOrders.FindAsync(orderId);
-            if(order.OrderOtp==inputOtp){
+            try{
+                var order = await _context.TblOrders.FindAsync(orderId);
+                if(order.OrderOtp==inputOtp){
                 order.OrderStatus="Delivered";
                 _context.Entry(order).State = EntityState.Modified;
                 var tblDelivery = new TblDelivery();
@@ -321,11 +327,21 @@ namespace GasB360_server.Controllers
                         message = "Delivery By Otp successfull.",
                     }
                 );
-            }
-            else{
+                }
+                else{
                 return BadRequest(new{status = "Failed",message="wrong Otp"});
-                
+                }
+
             }
+            
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+
+            
+            
 
         }
     }
