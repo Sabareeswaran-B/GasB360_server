@@ -103,7 +103,8 @@ namespace GasB360_server.Controllers
 
             try
             {
-                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
+                // BCrypt.Net.BCrypt.HashPassword()
+                var hashPassword = (tblEmployee.Password);
                 tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
