@@ -76,6 +76,39 @@ namespace GasB360_server.Controllers
             }
         }
 
+        // API To Get The Product Category and the product details By Passing ProductCategoryId As Parameter
+        [HttpGet("{productCategoryId}")]
+        public async Task<IActionResult> GetProductDetailsById(Guid productCategoryId)
+        {
+            try
+            {
+                var productCategory = await _context.TblProductCategories
+                    .Where(x => x.ProductId == productCategoryId)
+                    .Include(x => x.Type)
+                    .Include(x => x.TblFilledProducts)
+                    .FirstOrDefaultAsync();
+                
+                if (productCategory == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get product category by id successful.",
+                        data = productCategory
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
         //API To Update The Product Category Details By Passing ProductCategoryId As Parameter
 
         [HttpPut("{productCategoryId}")]
@@ -122,11 +155,9 @@ namespace GasB360_server.Controllers
         }
 
         //API To Add New Product Category By Passing tblProductCategory Object As Parameter
-        
+
         [HttpPost]
-        public async Task<IActionResult> AddProductCategory(
-            TblProductCategory tblProductCategory
-        )
+        public async Task<IActionResult> AddProductCategory(TblProductCategory tblProductCategory)
         {
             try
             {
@@ -182,6 +213,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Product Category Already Exists or Not By Passing ProductCategoryId As Parameter
 
         private bool IsProductCategoryExists(Guid productCategoryId)

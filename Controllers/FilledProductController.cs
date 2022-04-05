@@ -65,6 +65,40 @@ namespace GasB360_server.Controllers
             }
         }
 
+        // API To Get The Filled Product By Passing FilledProductId As Parameter
+        [HttpGet("{productCategoryId}")]
+        public async Task<IActionResult> GetFilledProductByProductCategoryId(Guid productCategoryId)
+        {
+            try
+            {
+                var tblFilledProduct = await _context.TblFilledProducts
+                    .Where(x => x.Active == "true" && x.ProductCategoryId == productCategoryId)
+                    .Include(x => x.Branch)
+                    .Include(x => x.ProductCategory)
+                    .Include(x => x.ProductCategory.Type)
+                    .FirstOrDefaultAsync();
+
+                if (tblFilledProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Get filled product by id successful.",
+                        data = tblFilledProduct
+                    }
+                );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
         //API To Update The Filled Product Details By Passing FilledProductId As Parameter
 
         [HttpPut("{filledProductId}")]
@@ -143,6 +177,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Remove Filled Product In The Stock By Passing FilledProductId/StockToRemove As Parameter
         [HttpPut("{filledProductId}/{stocksToRemove}")]
         public async Task<IActionResult> RemoveFilledProductStock(
@@ -244,6 +279,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The FilledProduct Already Exists or Not By Passing FilledProductId As Parameter
 
         private bool isFilledProductExists(Guid filledProductId)
