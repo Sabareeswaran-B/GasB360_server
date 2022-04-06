@@ -17,6 +17,7 @@ namespace GasB360_server.Models
         public int? ProductPrice { get; set; }
         public Guid? TypeId { get; set; }
         public string? Active { get; set; }
+        public string? ProductImage { get; set; }
 
         public virtual TblType? Type { get; set; }
         public virtual ICollection<TblFilledProduct>? TblFilledProducts { get; set; }
