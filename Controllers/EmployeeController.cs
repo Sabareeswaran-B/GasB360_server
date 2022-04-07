@@ -14,6 +14,7 @@ namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize("admin")]
     public class EmployeeController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -35,21 +36,12 @@ namespace GasB360_server.Controllers
         
         // API To Get All Of The Employees
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllEmployees()
         {
             try
             {
-                 var employee = from ai in _context.TblEmployees select new {
-                    EmployeeId = ai.EmployeeId,
-                    EmployeeName = ai.EmployeeName ,
-                    RoleId = ai.RoleId,
-                    active = ai.Active,
-                    employeePhone = ai.EmployeePhone,
-                    employeeEmail = ai.EmployeeEmail,
-                    password = ai.Password,
-                    role = ai.Role 
-                    
-                };
+                 var employee = await _context.TblEmployees.Include(x => x.Role).ToListAsync();
                 return Ok(
                     new { status = "success", message = "Get all customers", data = employee }
                 );
@@ -292,7 +284,9 @@ namespace GasB360_server.Controllers
                 _context.TblEmployees.Remove(tblEmployee);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok(
+                    new { status = "success", message = "Delete employee by id successful." }
+                );
             }
             catch (System.Exception ex)
             {

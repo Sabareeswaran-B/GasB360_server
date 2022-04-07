@@ -22,6 +22,7 @@ namespace GasB360_server.Models
         public int? CustomerConnection { get; set; }
         public int? AllowedLimit { get; set; }
         public string? Requested { get; set; }
+        public string? CustomerImage { get; set; }
 
         public virtual TblRole? Role { get; set; }
         public virtual TblType? Type { get; set; }

@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize("admin", "delivery")]
     public class DeliveryController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -23,6 +25,7 @@ namespace GasB360_server.Controllers
 
         //API To Get All Of The Deliveries
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllDeliveries()
         {
             try
@@ -86,6 +89,12 @@ namespace GasB360_server.Controllers
                     .Where(a => a.Active == "true")
                     .Include(a => a.Order)
                     .Where(a => a.Order.EmployeeId == employeeId)
+                    .Include(x => x.Order.Address)
+                    .Include(x => x.Order.Customer)
+                    .Include(x => x.Order.Employee)
+                    .Include(x => x.Order.FilledProduct)
+                    .Include(x =>x.Order.FilledProduct.ProductCategory)
+
                     .ToListAsync();
 
                 if (deliveries == null)
@@ -151,7 +160,6 @@ namespace GasB360_server.Controllers
         {
             try
             {
-            
                 _context.TblDeliveries.Add(tblDelivery);
                 await _context.SaveChangesAsync();
 
@@ -200,6 +208,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         //Function To Check Whether Delivery Already Exists Or Not By Passing DeliveryId As Parameter
         private bool IsDeliveryExists(Guid deliveryId)
         {

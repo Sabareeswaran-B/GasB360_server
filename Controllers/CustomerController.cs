@@ -9,30 +9,36 @@ using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
 using GasB360_server.Services;
 using GasB360_server.Helpers;
+using System.Net.Http.Headers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize("customer", "admin")]
     public class CustomerController : ControllerBase
     {
         private readonly GasB360Context _context;
         private readonly ICustomerService _customerService;
         private readonly IMailService _mailService;
+        private readonly IAzureStorage _azureStorage;
 
         public CustomerController(
             GasB360Context context,
             ICustomerService customerService,
-            IMailService mailService
+            IMailService mailService,
+            IAzureStorage azureStorage
         )
         {
             _context = context;
             _customerService = customerService;
             _mailService = mailService;
+            _azureStorage = azureStorage;
         }
 
         //API To Get All Of The Customers
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCustomers()
         {
             try
@@ -116,6 +122,57 @@ namespace GasB360_server.Controllers
             }
         }
 
+        //API To Update The Customer profile image By Passing CustomerId As Parameter
+        [HttpPut("{customerId}"), DisableRequestSizeLimit]
+        public async Task<IActionResult> UpdateCustomerImage(Guid customerId)
+        {
+            try
+            {
+                var formCollection = await Request.ReadFormAsync();
+                var file = formCollection.Files.First();
+                if (file.Length > 0)
+                {
+                    var fileName = ContentDispositionHeaderValue
+                        .Parse(file.ContentDisposition)
+                        .FileName.Trim('"');
+                    string fileURL = await _azureStorage.UploadAsync(
+                        file.OpenReadStream(),
+                        fileName,
+                        file.ContentType
+                    );
+                    var customer = await _context.TblCustomers.FindAsync(customerId);
+                    if (fileURL != null)
+                    {
+                        customer.CustomerImage = fileURL;
+                        await _context.SaveChangesAsync();
+                    }
+                    return Ok(
+                        new
+                        {
+                            status = "success",
+                            message = "Update customer successful.",
+                            data = customer
+                        }
+                    );
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                if (!IsCustomerExists(customerId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(new { status = "failed", message = ex.Message });
+                }
+            }
+        }
+
         //API To Update Request Connection By Passing CustomerId As Parameter
         [HttpPut("{customerId}")]
         public async Task<IActionResult> RequestConnection(Guid customerId)
@@ -150,8 +207,10 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Customer Login By Passing AuthRequest Object As Parameter
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(AuthRequest request)
         {
             try
@@ -178,12 +237,18 @@ namespace GasB360_server.Controllers
 
         //API To Add New Customer By Passing tblCustomer Object As Parameter
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> AddNewCustomer(TblCustomer tblCustomer)
         {
             try
             {
                 var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
                 tblCustomer.Password = hashPassword;
+                var role = await _context.TblRoles
+                    .Where(x => x.RoleType == "customer")
+                    .FirstOrDefaultAsync();
+                tblCustomer.RoleId = role.RoleId;
+                Console.WriteLine(tblCustomer.RoleId);
                 _context.TblCustomers.Add(tblCustomer);
                 await _context.SaveChangesAsync();
 
@@ -197,7 +262,8 @@ namespace GasB360_server.Controllers
                 return CreatedAtAction(
                     "GetCustomerById",
                     new { customerId = tblCustomer.CustomerId },
-                    new {
+                    new
+                    {
                         status = "success",
                         message = "Add new customer successful",
                         data = tblCustomer
@@ -236,6 +302,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         //Function To Check Whether The Customer Already Exists Or Not By Passing CustomerId As Parameter
         private bool IsCustomerExists(Guid customerId)
         {

@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize("customer")]
     public class AddressController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -23,6 +25,7 @@ namespace GasB360_server.Controllers
 
         // API To Get All Of The Customers Addresses
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCustomersAddresses()
         {
             try
@@ -107,7 +110,10 @@ namespace GasB360_server.Controllers
 
         //API To Update The Customer Address Details By Passing AddressId As Parameter
         [HttpPut("{addressId}")]
-        public async Task<IActionResult> UpdateCustomerAddress(Guid addressId, TblAddress tblAddress)
+        public async Task<IActionResult> UpdateCustomerAddress(
+            Guid addressId,
+            TblAddress tblAddress
+        )
         {
             if (addressId != tblAddress.AddressId)
             {
@@ -198,6 +204,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Address Already Exists or Not By Passing AddressId As Parameter
         private bool IsAddressExists(Guid addressId)
         {
