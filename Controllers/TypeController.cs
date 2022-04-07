@@ -31,6 +31,7 @@ namespace GasB360_server.Controllers
             try
             {
                 var type = await _context.TblTypes.ToListAsync();
+                
                 return Ok(
                     new { status = "success", message = "Get all type successful.", data = type }
                 );

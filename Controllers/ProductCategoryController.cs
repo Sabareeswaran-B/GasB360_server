@@ -31,7 +31,16 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var productCategory = await _context.TblProductCategories.ToListAsync();
+                 var productCategory = from ai in _context.TblProductCategories select new {
+                    ProductId = ai.ProductId,
+                    ProductName = ai.ProductName ,
+                    ProductWeight = ai.ProductWeight,
+                    ProductPrice = ai.ProductPrice,
+                    TypeId = ai.TypeId,
+                    Active = ai.Active,
+                    type = ai.Type,
+                    
+                };
                 return Ok(
                     new
                     {

@@ -30,12 +30,23 @@ namespace GasB360_server.Controllers
         {
             try
             {
+                var unfilledproducts = from ai in _context.TblUnfilledProducts select new {
+                    unfilledProductId = ai.UnfilledProductId,
+                    ProductCategoryId = ai.ProductCategoryId ,
+                    unfilledProductQuantity = ai.UnfilledProductQuantity,
+                    BranchId = ai.BranchId,
+                    Active = ai.Active,
+                    branch = ai.Branch,
+                    productcategory = ai.ProductCategory,
+
+                    
+                };
                 return Ok(
                     new
                     {
                         status = "success",
                         message = "Get all unfilled products successful.",
-                        data = await _context.TblUnfilledProducts.ToListAsync()
+                        data = unfilledproducts
                     }
                 );
             }
