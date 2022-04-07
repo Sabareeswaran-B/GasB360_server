@@ -132,7 +132,7 @@ namespace GasB360_server.Controllers
                     .Where(x => x.Requested == "true")
                     .ToListAsync();
                 return Ok(
-                    new
+                    new 
                     {
                         status = "success",
                         message = "Get all connection request successful.",
