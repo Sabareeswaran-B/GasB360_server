@@ -194,7 +194,7 @@ namespace GasB360_server.Controllers
                 //Send Otp to the customer
                 await SendOtpToCustomer(customer.CustomerPhone, tblOrder.OrderOtp);
                 //Send a notification to the employee
-                await SendNotificationToEmmployee(Employee.EmployeePhone, tblOrder.OrderId);
+                await SendNotificationToEmmployee(Employee.EmployeePhone);
 
                 return CreatedAtAction(
                     "GetOrderById",
@@ -339,13 +339,13 @@ namespace GasB360_server.Controllers
                 new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
             );
         }
-        private async Task SendNotificationToEmmployee(string EmployeePhone, Guid orderId)
+        private async Task SendNotificationToEmmployee(string EmployeePhone)
         {
             //Send Otp to the customer
             using var client = new HttpClient();
             var sentID = "TXTIND";
             var message =
-                $"You have assigned a new order with order id {orderId}.";
+                $"You have assigned a new order.";
             var phone = EmployeePhone;
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
