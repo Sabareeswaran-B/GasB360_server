@@ -223,6 +223,7 @@ namespace GasB360_server.Controllers
         }
         //API To Employee Login By Passing AuthRequest Object As Parameter
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(AuthRequest request)
         {
             try
@@ -250,6 +251,7 @@ namespace GasB360_server.Controllers
         //API To Add New Employee By Passing tblEmployee Object As Parameter
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> AddNewEmployee(TblEmployee tblEmployee)
         {
             var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
