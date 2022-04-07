@@ -35,8 +35,6 @@ namespace GasB360_server.Controllers
                     Active = ai.Active,
                     branch = ai.Branch,
                     productcategory = ai.ProductCategory,
-
-                    
                 };
                 return Ok(
                     new
