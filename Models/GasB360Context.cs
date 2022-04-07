@@ -145,6 +145,11 @@ namespace GasB360_server.Models
                     .IsUnicode(false)
                     .HasColumnName("customer_email");
 
+                entity.Property(e => e.CustomerImage)
+                    .IsUnicode(false)
+                    .HasColumnName("customer_image")
+                    .HasDefaultValueSql("('https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png')");
+
                 entity.Property(e => e.CustomerName)
                     .IsUnicode(false)
                     .HasColumnName("customer_name");
@@ -372,6 +377,11 @@ namespace GasB360_server.Models
                     .IsUnicode(false)
                     .HasColumnName("active")
                     .HasDefaultValueSql("('true')");
+
+                entity.Property(e => e.ProductImage)
+                    .IsUnicode(false)
+                    .HasColumnName("product_image")
+                    .HasDefaultValueSql("('https://media.istockphoto.com/photos/gas-bottles-lpg-plant-picture-id494257144?k=20&m=494257144&s=612x612&w=0&h=nXb_vYgdxD46oww8Z0DJd-U8lbhkz5rsbKtr3KviHvs=')");
 
                 entity.Property(e => e.ProductName)
                     .IsUnicode(false)

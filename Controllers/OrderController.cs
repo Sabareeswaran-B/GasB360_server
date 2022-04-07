@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
 using System.Net.Http.Headers;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -24,6 +26,7 @@ namespace GasB360_server.Controllers
 
         // API To Get All Of The Orders
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllOrders()
         {
             try
@@ -224,28 +227,18 @@ namespace GasB360_server.Controllers
             try
             {
                 tblOrder.OrderOtp = OrderOtpGenerator();
-                tblOrder.EmployeeId = await AssignEmployeeId();
+                var Employee = await AssignEmployeeId();
+                tblOrder.EmployeeId = Employee.EmployeeId;
                 var customer = await _context.TblCustomers.FindAsync(tblOrder.CustomerId);
 
-                //Send Otp to the customer
-                using var client = new HttpClient();
-                var sentID = "TXTIND";
-                var message = $"Your order from GasB360 is placed successfully, OTP for your order is, \n OTP : {tblOrder.OrderOtp}";
-                var phone = customer.CustomerPhone;
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
-                );
-                client.DefaultRequestHeaders.Add(
-                    "authorization",
-                    "xOKaf9FuYNR2O1KlfcoYtIXyS1ALi5ymXAgZt4Mb88zNvMH0lmAidKugEMN9"
-                );
-                var res = await client.PostAsJsonAsync(
-                    "https://www.fast2sms.com/dev/bulkV2",
-                    new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
-                );
                 _context.TblOrders.Add(tblOrder);
 
                 await _context.SaveChangesAsync();
+
+                //Send Otp to the customer
+                await SendOtpToCustomer(customer.CustomerPhone, tblOrder.OrderOtp);
+                //Send a notification to the employee
+                await SendNotificationToEmmployee(Employee.EmployeePhone, tblOrder.OrderId);
 
                 return CreatedAtAction(
                     "GetOrderById",
@@ -304,7 +297,7 @@ namespace GasB360_server.Controllers
         }
 
         //Function To Assign The EmployeeId Under Certain Condition On Creating Order Request
-        private async Task<Guid> AssignEmployeeId()
+        private async Task<TblEmployee> AssignEmployeeId()
         {
             var employee = await _context.TblEmployees
                 .Where(x => x.Active == "true")
@@ -312,7 +305,7 @@ namespace GasB360_server.Controllers
                 .Where(x => x.Role.RoleType == "delivery")
                 .OrderBy(x => Guid.NewGuid())
                 .FirstOrDefaultAsync();
-            return employee.EmployeeId;
+            return employee;
         }
 
         //Function To Add A UnFilled Product After Successfull Delivery By Passing FilledProductId As Parameter
@@ -330,6 +323,7 @@ namespace GasB360_server.Controllers
             _context.Entry(unfilledProduct).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+
         //Function To Remove A Filled Product After Successfull Delivery By Passing FilledProductId As Parameter
         private async Task RemovefilledProduct(Guid? filledProductId)
         {
@@ -346,6 +340,46 @@ namespace GasB360_server.Controllers
             _context.Entry(unfilledProduct).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
-        
+
+        private async Task SendOtpToCustomer(string CustomerPhone, int? otp)
+        {
+            //Send Otp to the customer
+            using var client = new HttpClient();
+            var sentID = "TXTIND";
+            var message =
+                $"Your order from GasB360 is placed successfully, OTP for your order is, \n OTP : {otp}";
+            var phone = CustomerPhone;
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
+            );
+            client.DefaultRequestHeaders.Add(
+                "authorization",
+                "xOKaf9FuYNR2O1KlfcoYtIXyS1ALi5ymXAgZt4Mb88zNvMH0lmAidKugEMN9"
+            );
+            var res = await client.PostAsJsonAsync(
+                "https://www.fast2sms.com/dev/bulkV2",
+                new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
+            );
+        }
+        private async Task SendNotificationToEmmployee(string EmployeePhone, Guid orderId)
+        {
+            //Send Otp to the customer
+            using var client = new HttpClient();
+            var sentID = "TXTIND";
+            var message =
+                $"You have assigned a new order with order id {orderId}.";
+            var phone = EmployeePhone;
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
+            );
+            client.DefaultRequestHeaders.Add(
+                "authorization",
+                "xOKaf9FuYNR2O1KlfcoYtIXyS1ALi5ymXAgZt4Mb88zNvMH0lmAidKugEMN9"
+            );
+            var res = await client.PostAsJsonAsync(
+                "https://www.fast2sms.com/dev/bulkV2",
+                new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
+            );
+        }
     }
 }

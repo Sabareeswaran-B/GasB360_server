@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class BranchController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -23,6 +25,7 @@ namespace GasB360_server.Controllers
 
         //API To Get All Of The Gas Stations Branches
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllBranches()
         {
             try
@@ -50,9 +53,7 @@ namespace GasB360_server.Controllers
                     return NotFound();
                 }
 
-                return Ok(
-                    new { status = "success", message = "Gell branch by id", data = branch }
-                );
+                return Ok(new { status = "success", message = "Gell branch by id", data = branch });
             }
             catch (System.Exception ex)
             {
@@ -135,13 +136,7 @@ namespace GasB360_server.Controllers
                 _context.TblBranches.Remove(tblBranch);
                 await _context.SaveChangesAsync();
 
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delete branch by id successful."
-                    }
-                );
+                return Ok(new { status = "success", message = "Delete branch by id successful." });
             }
             catch (System.Exception ex)
             {
@@ -149,6 +144,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         //Function To Check Whether The Branch Already Exists Or Not By Passing BranchId As Parameter
         private bool IsBranchExists(Guid branchId)
         {
