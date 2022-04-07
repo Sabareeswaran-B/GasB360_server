@@ -15,6 +15,7 @@ namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize("customer", "admin")]
     public class CustomerController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -37,6 +38,7 @@ namespace GasB360_server.Controllers
 
         //API To Get All Of The Customers
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCustomers()
         {
             try

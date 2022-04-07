@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
 using System.Net.Http.Headers;
+using GasB360_server.Helpers;
 
 namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -24,6 +26,7 @@ namespace GasB360_server.Controllers
 
         // API To Get All Of The Orders
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllOrders()
         {
             try
