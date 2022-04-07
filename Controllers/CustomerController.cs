@@ -210,6 +210,7 @@ namespace GasB360_server.Controllers
 
         //API To Customer Login By Passing AuthRequest Object As Parameter
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(AuthRequest request)
         {
             try
@@ -236,6 +237,7 @@ namespace GasB360_server.Controllers
 
         //API To Add New Customer By Passing tblCustomer Object As Parameter
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> AddNewCustomer(TblCustomer tblCustomer)
         {
             try
