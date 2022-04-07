@@ -177,6 +177,45 @@ namespace GasB360_server.Controllers
             }
         }
 
+        //API To Check Order Delivery By OTP  By Passing OrderId And Otp As Parameter
+        [HttpGet("{orderId}/{inputOtp}")]
+        public async Task<IActionResult> OrderDeliveryCheckByOtp(Guid orderId,int inputOtp){
+            try{
+                var order = await _context.TblOrders.FindAsync(orderId);
+                if(order.OrderOtp==inputOtp){
+                order.OrderStatus="Delivered";
+                _context.Entry(order).State = EntityState.Modified;
+                var tblDelivery = new TblDelivery();
+                tblDelivery.OrderId=orderId;
+                _context.TblDeliveries.Add(tblDelivery);
+                await _context.SaveChangesAsync();
+                await AddUnfilledProduct(order.FilledProductId);
+                await RemovefilledProduct(order.FilledProductId);
+                return Ok(
+                    new
+                    {
+                        status = "success",
+                        message = "Delivery By Otp successfull.",
+                    }
+                );
+                }
+                else{
+                return BadRequest(new{status = "Failed",message="wrong Otp"});
+                }
+
+            }
+            
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+
+            
+            
+
+        }
+
         //API To Add New Order By Passing tblOrder Object As Parameter
 
         [HttpPost]
@@ -307,42 +346,6 @@ namespace GasB360_server.Controllers
             _context.Entry(unfilledProduct).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
-        //Function To Check Order Delivery By OTP  By Passing OrderId And Otp As Parameter
-        private async Task<IActionResult> OrderDeliveryCheckByOtp(Guid orderId,int inputOtp){
-            try{
-                var order = await _context.TblOrders.FindAsync(orderId);
-                if(order.OrderOtp==inputOtp){
-                order.OrderStatus="Delivered";
-                _context.Entry(order).State = EntityState.Modified;
-                var tblDelivery = new TblDelivery();
-                tblDelivery.OrderId=orderId;
-                _context.TblDeliveries.Add(tblDelivery);
-                await _context.SaveChangesAsync();
-                await AddUnfilledProduct(order.FilledProductId);
-                await RemovefilledProduct(order.FilledProductId);
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delivery By Otp successfull.",
-                    }
-                );
-                }
-                else{
-                return BadRequest(new{status = "Failed",message="wrong Otp"});
-                }
-
-            }
-            
-            catch (System.Exception ex)
-            {
-                Sentry.SentrySdk.CaptureException(ex);
-                return BadRequest(new { status = "failed", message = ex.Message });
-            }
-
-            
-            
-
-        }
+        
     }
 }
