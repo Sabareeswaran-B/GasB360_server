@@ -29,17 +29,11 @@ namespace GasB360_server.Controllers
         public async Task<IActionResult> GetAllFilledProducts()
         {
             // var filledproducts = await _context.TblFilledProducts.ToListAsync();
-             var filledproducts = from ai in _context.TblFilledProducts select new {
-                    FilledProductId = ai.FilledProductId,
-                    ProductCategoryId = ai.ProductCategoryId ,
-                    FilledProductQuantity = ai.FilledProductQuantity,
-                    BranchId = ai.BranchId,
-                    Active = ai.Active,
-                    branch = ai.Branch,
-                    productcategory = ai.ProductCategory,
-
-                    
-                };
+             var filledproducts = await _context.TblFilledProducts
+             .Include(x => x.Branch)
+             .Include(x => x.ProductCategory)
+             .Include(x => x.ProductCategory.Type)
+             .ToListAsync();
             return Ok(
                 new
                 {

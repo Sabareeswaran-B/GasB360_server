@@ -13,7 +13,7 @@ namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    [Authorize("admin","delivery")]
+    [Authorize("admin", "delivery")]
     public class UnfilledProductController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -30,17 +30,11 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var unfilledproducts = from ai in _context.TblUnfilledProducts select new {
-                    unfilledProductId = ai.UnfilledProductId,
-                    ProductCategoryId = ai.ProductCategoryId ,
-                    unfilledProductQuantity = ai.UnfilledProductQuantity,
-                    BranchId = ai.BranchId,
-                    Active = ai.Active,
-                    branch = ai.Branch,
-                    productcategory = ai.ProductCategory,
-
-                    
-                };
+                var unfilledproducts = await _context.TblUnfilledProducts
+                    .Include(x => x.Branch)
+                    .Include(x => x.ProductCategory)
+                    .Include(x => x.ProductCategory.Type)
+                    .ToListAsync();
                 return Ok(
                     new
                     {
@@ -130,6 +124,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Add UnFilled Product In The Stock By Passing UnFilledProductId/StockToAdd As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToAdd}")]
@@ -168,6 +163,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Remove UnFilled Product In The Stock By Passing UnFilledProductId/StockToRemove As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToRemove}")]
@@ -275,6 +271,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The UnFilledProduct Already Exists or Not By Passing UnFilledProductId As Parameter
 
         private bool IsUnfilledProductExists(Guid unfilledProductId)
