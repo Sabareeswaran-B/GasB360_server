@@ -203,7 +203,7 @@ namespace GasB360_server.Controllers
                 );
                 }
                 else{
-                return BadRequest(new{status = "Failed",message="wrong Otp"});
+                return BadRequest(new{status = "Failed",message="Wrong Otp"});
                 }
 
             }
