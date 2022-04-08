@@ -33,7 +33,7 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var orders = await _context.TblOrders.ToListAsync();
+                var orders = await _context.TblOrders.Where(x => x.Active == "true").ToListAsync();
                 return Ok(
                     new
                     {
@@ -307,13 +307,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblOrder = await _context.TblOrders.FindAsync(orderId);
+                var tblOrder = await _context.TblOrders
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.OrderId == orderId)
+                    .FirstOrDefaultAsync();
                 if (tblOrder == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblOrders.Remove(tblOrder);
+                tblOrder.Active = "false";
+                _context.Entry(tblOrder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Delete order by id successful." });

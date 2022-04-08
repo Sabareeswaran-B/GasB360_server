@@ -30,7 +30,9 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var branch = await _context.TblBranches.ToListAsync();
+                var branch = await _context.TblBranches
+                    .Where(x => x.Active == "true")
+                    .ToListAsync();
                 return Ok(new { status = "success", message = "Get all branches", data = branch });
             }
             catch (System.Exception ex)
@@ -46,7 +48,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var branch = await _context.TblBranches.FindAsync(branchId);
+                var branch =  await _context.TblBranches
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.BranchId == branchId)
+                    .FirstOrDefaultAsync();
 
                 if (branch == null)
                 {
@@ -127,13 +132,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblBranch = await _context.TblBranches.FindAsync(branchId);
+                var tblBranch = await _context.TblBranches
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.BranchId == branchId)
+                    .FirstOrDefaultAsync();
                 if (tblBranch == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblBranches.Remove(tblBranch);
+                tblBranch.Active = "false";
+                _context.Entry(tblBranch).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Delete branch by id successful." });

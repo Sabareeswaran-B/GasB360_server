@@ -29,11 +29,12 @@ namespace GasB360_server.Controllers
         public async Task<IActionResult> GetAllFilledProducts()
         {
             // var filledproducts = await _context.TblFilledProducts.ToListAsync();
-             var filledproducts = await _context.TblFilledProducts
-             .Include(x => x.Branch)
-             .Include(x => x.ProductCategory)
-             .Include(x => x.ProductCategory.Type)
-             .ToListAsync();
+            var filledproducts = await _context.TblFilledProducts
+                .Where(x => x.Active == "true")
+                .Include(x => x.Branch)
+                .Include(x => x.ProductCategory)
+                .Include(x => x.ProductCategory.Type)
+                .ToListAsync();
             return Ok(
                 new
                 {
@@ -50,7 +51,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
+                var tblFilledProduct = await _context.TblFilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.FilledProductId == filledProductId)
+                    .FirstOrDefaultAsync();
 
                 if (tblFilledProduct == null)
                 {
@@ -263,15 +267,18 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblFilledProduct = await _context.TblFilledProducts.FindAsync(filledProductId);
+                var tblFilledProduct = await _context.TblFilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.FilledProductId == filledProductId)
+                    .FirstOrDefaultAsync();
                 if (tblFilledProduct == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblFilledProducts.Remove(tblFilledProduct);
+                tblFilledProduct.Active = "false";
+                _context.Entry(tblFilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-
                 return Ok(
                     new
                     {
