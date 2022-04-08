@@ -246,9 +246,8 @@ namespace GasB360_server.Controllers
                         new { status = "success", message = "Delivery By Otp successfull.", }
                     );
                 }
-                else
-                {
-                    return BadRequest(new { status = "Failed", message = "wrong Otp" });
+                else{
+                return BadRequest(new{status = "Failed",message="Wrong Otp"});
                 }
             }
             catch (System.Exception ex)
