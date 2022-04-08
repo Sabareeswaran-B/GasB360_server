@@ -23,15 +23,19 @@ namespace GasB360_server.Controllers
 
         private readonly ICustomerService _customerService;
 
+        private readonly IMailService _mailService;
+
         public EmployeeController(
             GasB360Context context,
             ICustomerService customerService,
-            IEmployeeService EmployeeService
+            IEmployeeService EmployeeService,
+            IMailService mailService
         )
         {
             _context = context;
             _customerService = customerService;
             _EmployeeService = EmployeeService;
+            _mailService = mailService;
         }
 
         // API To Get All Of The Employees
@@ -168,6 +172,12 @@ namespace GasB360_server.Controllers
                 customer.CustomerConnection += 1;
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                var mail = new MailRequest();
+                mail.ToEmail = customer.CustomerEmail;
+                mail.Subject = "Welcome to GasB360";
+                mail.Body =
+                    $"<h3>Hello {customer.CustomerName},</h3><p>Your request for connection has been accepted.</p><br><p>You can now order cylinders from us.</p><p>Thankyou</p><br><p>GasB360</p>";
+                await _mailService.SendEmailAsync(mail);
                 return Ok(
                     new
                     {
@@ -205,6 +215,12 @@ namespace GasB360_server.Controllers
                 customer.Requested = "false";
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+                 var mail = new MailRequest();
+                mail.ToEmail = customer.CustomerEmail;
+                mail.Subject = "Welcome to GasB360";
+                mail.Body =
+                    $"<h3>Hello {customer.CustomerName},</h3><p>Your request for connection has been declined.</p><br><p>We are sorry for the inconvenience.</p><p>Thankyou</p><br><p>GasB360</p>";
+                await _mailService.SendEmailAsync(mail);
                 return Ok(
                     new
                     {

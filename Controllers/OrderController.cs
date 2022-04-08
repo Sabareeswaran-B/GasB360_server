@@ -129,12 +129,12 @@ namespace GasB360_server.Controllers
                     .Where(a => a.Active == "true")
                     .Where(a => a.CustomerId == customerId)
                     .ToListAsync();
-                var start = (pageNo - 1) * 5;
+                var start = (pageNo - 1) * 3;
                 var count = orders.Count();
                 var customerOrders = await _context.TblOrders
                     .Where(x => x.CustomerId == customerId)
                     .Skip(start)
-                    .Take(5)
+                    .Take(3)
                     .Include(a => a.Address)
                     .Include(a => a.Customer)
                     .Include(a => a.FilledProduct)
