@@ -31,7 +31,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var productCategory = await _context.TblProductCategories.ToListAsync();
+                var productCategory = await _context.TblProductCategories
+                    .Where(x => x.Active == "true")
+                    .Include(x => x.Type)
+                    .ToListAsync();
                 return Ok(
                     new
                     {
@@ -54,9 +57,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var productCategory = await _context.TblProductCategories.FindAsync(
-                    productCategoryId
-                );
+                var productCategory = await _context.TblProductCategories
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.ProductId == productCategoryId)
+                    .FirstOrDefaultAsync();
 
                 if (productCategory == null)
                 {
@@ -90,7 +94,7 @@ namespace GasB360_server.Controllers
                     .Include(x => x.Type)
                     .Include(x => x.TblFilledProducts)
                     .FirstOrDefaultAsync();
-                
+
                 if (productCategory == null)
                 {
                     return NotFound();
@@ -191,15 +195,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblProductCategory = await _context.TblProductCategories.FindAsync(
-                    productCategoryId
-                );
+                var tblProductCategory = await _context.TblProductCategories
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.ProductId == productCategoryId)
+                    .FirstOrDefaultAsync();
                 if (tblProductCategory == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblProductCategories.Remove(tblProductCategory);
+                tblProductCategory.Active = "false";
+                _context.Entry(tblProductCategory).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(

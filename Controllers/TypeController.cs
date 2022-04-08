@@ -30,7 +30,8 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var type = await _context.TblTypes.ToListAsync();
+                var type = await _context.TblTypes.Where(x => x.Active == "true").ToListAsync();
+
                 return Ok(
                     new { status = "success", message = "Get all type successful.", data = type }
                 );
@@ -48,7 +49,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblType = await _context.TblTypes.FindAsync(typeId);
+                var tblType = await _context.TblTypes
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.TypeId == typeId)
+                    .FirstOrDefaultAsync();
 
                 if (tblType == null)
                 {
@@ -134,13 +138,18 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblType = await _context.TblTypes.FindAsync(typeId);
+                var tblType = await _context.TblTypes
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.TypeId == typeId)
+                    .FirstOrDefaultAsync();
+
                 if (tblType == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblTypes.Remove(tblType);
+                tblType.Active = "false";
+                _context.Entry(tblType).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Delete type by id successful." });
@@ -151,6 +160,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Type Already Exists or Not By Passing TypeId As Parameter
 
         private bool IsTypeExists(Guid typeId)

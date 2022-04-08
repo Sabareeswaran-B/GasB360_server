@@ -21,6 +21,7 @@
     <PackageReference Include="Sentry.AspNetCore" Version="3.15.0" />
     <PackageReference Include="Stripe.net" Version="39.103.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="system.data.sqlclient" Version="4.8.3" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using GasB360_server.Models;
 using System.Net.Http.Headers;
 using GasB360_server.Helpers;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace GasB360_server.Controllers
 {
@@ -31,7 +33,7 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var orders = await _context.TblOrders.ToListAsync();
+                var orders = await _context.TblOrders.Where(x => x.Active == "true").ToListAsync();
                 return Ok(
                     new
                     {
@@ -86,6 +88,10 @@ namespace GasB360_server.Controllers
                 var customerOrders = await _context.TblOrders
                     .Where(a => a.Active == "true")
                     .Where(a => a.CustomerId == customerId)
+                    .Include(a => a.Address)
+                    .Include(a => a.Customer)
+                    .Include(a => a.FilledProduct)
+                    .Include(a => a.FilledProduct.ProductCategory)
                     .ToListAsync();
 
                 if (customerOrders == null)
@@ -101,6 +107,45 @@ namespace GasB360_server.Controllers
                         data = customerOrders
                     }
                 );
+            }
+            catch (System.Exception ex)
+            {
+                Sentry.SentrySdk.CaptureException(ex);
+                return BadRequest(new { status = "failed", message = ex.Message });
+            }
+        }
+
+        // API To Get The Ordesr By Customer By Passing CustomerId As Parameter
+        [HttpGet("{customerId}/{pageNo}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOrdersByCustomerIdWithPagination(
+            Guid customerId,
+            int pageNo
+        )
+        {
+            try
+            {
+                var orders = await _context.TblOrders
+                    .Where(a => a.Active == "true")
+                    .Where(a => a.CustomerId == customerId)
+                    .ToListAsync();
+                var start = (pageNo - 1) * 5;
+                var count = orders.Count();
+                var customerOrders = await _context.TblOrders
+                    .Where(x => x.CustomerId == customerId)
+                    .Skip(start)
+                    .Take(5)
+                    .Include(a => a.Address)
+                    .Include(a => a.Customer)
+                    .Include(a => a.FilledProduct)
+                    .Include(a => a.FilledProduct.ProductCategory)
+                    .ToListAsync();
+                if (customerOrders == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new { status = "success", message = count, data = customerOrders, });
             }
             catch (System.Exception ex)
             {
@@ -182,40 +227,37 @@ namespace GasB360_server.Controllers
 
         //API To Check Order Delivery By OTP  By Passing OrderId And Otp As Parameter
         [HttpGet("{orderId}/{inputOtp}")]
-        public async Task<IActionResult> OrderDeliveryCheckByOtp(Guid orderId,int inputOtp){
-            try{
+        public async Task<IActionResult> OrderDeliveryCheckByOtp(Guid orderId, int inputOtp)
+        {
+            try
+            {
                 var order = await _context.TblOrders.FindAsync(orderId);
-                if(order.OrderOtp==inputOtp){
-                order.OrderStatus="Delivered";
-                _context.Entry(order).State = EntityState.Modified;
-                var tblDelivery = new TblDelivery();
-                tblDelivery.OrderId=orderId;
-                _context.TblDeliveries.Add(tblDelivery);
-                await _context.SaveChangesAsync();
-                await AddUnfilledProduct(order.FilledProductId);
-                await RemovefilledProduct(order.FilledProductId);
-                return Ok(
-                    new
-                    {
-                        status = "success",
-                        message = "Delivery By Otp successfull.",
-                    }
-                );
+                if (order.OrderOtp == inputOtp)
+                {
+                    order.OrderStatus = "Delivered";
+                    _context.Entry(order).State = EntityState.Modified;
+                    var tblDelivery = new TblDelivery();
+                    tblDelivery.OrderId = orderId;
+                    _context.TblDeliveries.Add(tblDelivery);
+                    await _context.SaveChangesAsync();
+                    await AddUnfilledProduct(order.FilledProductId);
+                    await RemovefilledProduct(order.FilledProductId);
+                    return Ok(
+                        new { status = "success", message = "Delivery By Otp successfull.", }
+                    );
                 }
                 else{
                 return BadRequest(new{status = "Failed",message="Wrong Otp"});
                 }
-
             }
-            
             catch (System.Exception ex)
             {
                 Sentry.SentrySdk.CaptureException(ex);
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
 
-            
-            
+
+
 
         }
 
@@ -238,7 +280,7 @@ namespace GasB360_server.Controllers
                 //Send Otp to the customer
                 await SendOtpToCustomer(customer.CustomerPhone, tblOrder.OrderOtp);
                 //Send a notification to the employee
-                await SendNotificationToEmmployee(Employee.EmployeePhone, tblOrder.OrderId);
+                await SendNotificationToEmmployee(Employee.EmployeePhone);
 
                 return CreatedAtAction(
                     "GetOrderById",
@@ -264,13 +306,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblOrder = await _context.TblOrders.FindAsync(orderId);
+                var tblOrder = await _context.TblOrders
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.OrderId == orderId)
+                    .FirstOrDefaultAsync();
                 if (tblOrder == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblOrders.Remove(tblOrder);
+                tblOrder.Active = "false";
+                _context.Entry(tblOrder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Delete order by id successful." });
@@ -361,13 +407,13 @@ namespace GasB360_server.Controllers
                 new { sender_id = sentID, message = message, numbers = phone, route = "v3" }
             );
         }
-        private async Task SendNotificationToEmmployee(string EmployeePhone, Guid orderId)
+
+        private async Task SendNotificationToEmmployee(string EmployeePhone)
         {
             //Send Otp to the customer
             using var client = new HttpClient();
             var sentID = "TXTIND";
-            var message =
-                $"You have assigned a new order with order id {orderId}.";
+            var message = $"You have assigned a new order.";
             var phone = EmployeePhone;
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")

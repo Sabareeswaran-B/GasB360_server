@@ -30,7 +30,9 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var deliveries = await _context.TblDeliveries.ToListAsync();
+                var deliveries = await _context.TblDeliveries
+                    .Where(x => x.Active == "true")
+                    .ToListAsync();
                 return Ok(
                     new
                     {
@@ -56,7 +58,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var delivery = await _context.TblDeliveries.FindAsync(deliveryId);
+                var delivery = await _context.TblDeliveries
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.DeliveryId == deliveryId)
+                    .FirstOrDefaultAsync();
 
                 if (delivery == null)
                 {
@@ -93,8 +98,7 @@ namespace GasB360_server.Controllers
                     .Include(x => x.Order.Customer)
                     .Include(x => x.Order.Employee)
                     .Include(x => x.Order.FilledProduct)
-                    .Include(x =>x.Order.FilledProduct.ProductCategory)
-
+                    .Include(x => x.Order.FilledProduct.ProductCategory)
                     .ToListAsync();
 
                 if (deliveries == null)
@@ -189,13 +193,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblDelivery = await _context.TblDeliveries.FindAsync(deliveryId);
+                var tblDelivery = await _context.TblDeliveries
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.DeliveryId == deliveryId)
+                    .FirstOrDefaultAsync();
                 if (tblDelivery == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblDeliveries.Remove(tblDelivery);
+                tblDelivery.Active = "false";
+                _context.Entry(tblDelivery).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(

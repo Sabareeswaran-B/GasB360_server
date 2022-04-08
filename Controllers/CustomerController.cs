@@ -43,7 +43,9 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var customers = await _context.TblCustomers.ToListAsync();
+                var customers = await _context.TblCustomers
+                    .Where(x => x.Active == "true")
+                    .ToListAsync();
                 return Ok(
                     new { status = "success", message = "Get all customers", data = customers }
                 );
@@ -57,11 +59,15 @@ namespace GasB360_server.Controllers
 
         //API To Get The Customer By Passing CustomerId As Parameter
         [HttpGet("{customerId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCustomerById(Guid customerId)
         {
             try
             {
-                var tblCustomer = await _context.TblCustomers.FindAsync(customerId);
+                var tblCustomer = await _context.TblCustomers
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.CustomerId == customerId)
+                    .FirstOrDefaultAsync();
 
                 if (tblCustomer == null)
                 {
@@ -95,8 +101,8 @@ namespace GasB360_server.Controllers
 
             try
             {
-                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
-                tblCustomer.Password = hashPassword;
+                // var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblCustomer.Password);
+                // tblCustomer.Password = hashPassword;
                 _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 var customer = await _context.TblCustomers.FindAsync(customerId);
@@ -283,13 +289,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblCustomer = await _context.TblCustomers.FindAsync(customerId);
+                var tblCustomer = await _context.TblCustomers
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.CustomerId == customerId)
+                    .FirstOrDefaultAsync();
                 if (tblCustomer == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblCustomers.Remove(tblCustomer);
+                tblCustomer.Active = "false";
+                _context.Entry(tblCustomer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(

@@ -33,7 +33,7 @@ namespace GasB360_server.Controllers
             _customerService = customerService;
             _EmployeeService = EmployeeService;
         }
-        
+
         // API To Get All Of The Employees
         [HttpGet]
         [AllowAnonymous]
@@ -41,7 +41,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var employee = await _context.TblEmployees.ToListAsync();
+                var employee = await _context.TblEmployees
+                    .Where(x => x.Active == "true")
+                    .Include(x => x.Role)
+                    .ToListAsync();
                 return Ok(
                     new { status = "success", message = "Get all customers", data = employee }
                 );
@@ -60,7 +63,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblEmployee = await _context.TblEmployees.FindAsync(employeeId);
+                var tblEmployee = await _context.TblEmployees
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.EmployeeId == employeeId)
+                    .FirstOrDefaultAsync();
 
                 if (tblEmployee == null)
                 {
@@ -95,11 +101,12 @@ namespace GasB360_server.Controllers
 
             try
             {
-                var hashPassword = BCrypt.Net.BCrypt.HashPassword(tblEmployee.Password);
+                // BCrypt.Net.BCrypt.HashPassword()
+                var hashPassword = (tblEmployee.Password);
                 tblEmployee.Password = hashPassword;
                 _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 return Ok(
+                return Ok(
                     new
                     {
                         status = "success",
@@ -120,6 +127,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Get All The Connection Requests
         [HttpGet]
         public async Task<IActionResult> GetAllConnectionRequests()
@@ -160,7 +168,7 @@ namespace GasB360_server.Controllers
                 customer.CustomerConnection += 1;
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 return Ok(
+                return Ok(
                     new
                     {
                         status = "success",
@@ -181,7 +189,7 @@ namespace GasB360_server.Controllers
                 }
             }
 
-           
+
         }
 
         //API To EmployeeAdmin Rejecting The Connection Request By Passing CustomerId As Parameter
@@ -197,7 +205,7 @@ namespace GasB360_server.Controllers
                 customer.Requested = "false";
                 _context.Entry(customer).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                 return Ok(
+                return Ok(
                     new
                     {
                         status = "success",
@@ -220,6 +228,7 @@ namespace GasB360_server.Controllers
 
 
         }
+
         //API To Employee Login By Passing AuthRequest Object As Parameter
         [HttpPost]
         [AllowAnonymous]
@@ -276,13 +285,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblEmployee = await _context.TblEmployees.FindAsync(employeeId);
+                var tblEmployee = await _context.TblEmployees
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.EmployeeId == employeeId)
+                    .FirstOrDefaultAsync();
                 if (tblEmployee == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblEmployees.Remove(tblEmployee);
+                tblEmployee.Active = "false";
+                _context.Entry(tblEmployee).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(
@@ -295,8 +308,9 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Employee Already Exists or Not By Passing EmployeeId As Parameter
-  
+
         private bool IsEmployeeExists(Guid employeeId)
         {
             return _context.TblEmployees.Any(e => e.EmployeeId == employeeId);

@@ -13,7 +13,7 @@ namespace GasB360_server.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    [Authorize("admin","delivery")]
+    [Authorize("admin", "delivery")]
     public class UnfilledProductController : ControllerBase
     {
         private readonly GasB360Context _context;
@@ -30,12 +30,18 @@ namespace GasB360_server.Controllers
         {
             try
             {
+                var unfilledproducts = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
+                    .Include(x => x.Branch)
+                    .Include(x => x.ProductCategory)
+                    .Include(x => x.ProductCategory.Type)
+                    .ToListAsync();
                 return Ok(
                     new
                     {
                         status = "success",
                         message = "Get all unfilled products successful.",
-                        data = await _context.TblUnfilledProducts.ToListAsync()
+                        data = unfilledproducts
                     }
                 );
             }
@@ -52,9 +58,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
-                    unfilledProductId
-                );
+                var tblUnfilledProduct = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.UnfilledProductId == unfilledProductId)
+                    .FirstOrDefaultAsync();
 
                 if (tblUnfilledProduct == null)
                 {
@@ -119,6 +126,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Add UnFilled Product In The Stock By Passing UnFilledProductId/StockToAdd As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToAdd}")]
@@ -157,6 +165,7 @@ namespace GasB360_server.Controllers
                 }
             }
         }
+
         //API To Remove UnFilled Product In The Stock By Passing UnFilledProductId/StockToRemove As Parameter
 
         [HttpPut("{unFilledProductId}/{stocksToRemove}")]
@@ -239,15 +248,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
-                    unFilledProductId
-                );
+                var tblUnfilledProduct = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.UnfilledProductId == unFilledProductId)
+                    .FirstOrDefaultAsync();
                 if (tblUnfilledProduct == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblUnfilledProducts.Remove(tblUnfilledProduct);
+                tblUnfilledProduct.Active = "false";
+                _context.Entry(tblUnfilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(
@@ -264,6 +275,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The UnFilledProduct Already Exists or Not By Passing UnFilledProductId As Parameter
 
         private bool IsUnfilledProductExists(Guid unfilledProductId)
