@@ -31,6 +31,7 @@ namespace GasB360_server.Controllers
             try
             {
                 var unfilledproducts = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
                     .Include(x => x.Branch)
                     .Include(x => x.ProductCategory)
                     .Include(x => x.ProductCategory.Type)
@@ -57,9 +58,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
-                    unfilledProductId
-                );
+                var tblUnfilledProduct = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.UnfilledProductId == unfilledProductId)
+                    .FirstOrDefaultAsync();
 
                 if (tblUnfilledProduct == null)
                 {
@@ -246,15 +248,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblUnfilledProduct = await _context.TblUnfilledProducts.FindAsync(
-                    unFilledProductId
-                );
+                var tblUnfilledProduct = await _context.TblUnfilledProducts
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.UnfilledProductId == unFilledProductId)
+                    .FirstOrDefaultAsync();
                 if (tblUnfilledProduct == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblUnfilledProducts.Remove(tblUnfilledProduct);
+                tblUnfilledProduct.Active = "false";
+                _context.Entry(tblUnfilledProduct).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(

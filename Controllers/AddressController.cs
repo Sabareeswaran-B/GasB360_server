@@ -30,7 +30,9 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var address = await _context.TblAddresses.ToListAsync();
+                var address = await _context.TblAddresses
+                    .Where(x => x.Active == "true")
+                    .ToListAsync();
                 return Ok(
                     new
                     {
@@ -53,7 +55,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var address = await _context.TblAddresses.FindAsync(addressId);
+                var address = await _context.TblAddresses
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.AddressId == addressId)
+                    .FirstOrDefaultAsync();
 
                 if (address == null)
                 {
@@ -181,13 +186,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblAddress = await _context.TblAddresses.FindAsync(addressId);
+                var tblAddress = await _context.TblAddresses
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.AddressId == addressId)
+                    .FirstOrDefaultAsync();
                 if (tblAddress == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblAddresses.Remove(tblAddress);
+                tblAddress.Active = "false";
+                _context.Entry(tblAddress).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(

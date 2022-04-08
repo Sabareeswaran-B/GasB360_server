@@ -30,7 +30,7 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var role = await _context.TblRoles.ToListAsync();
+                var role = await _context.TblRoles.Where(x => x.Active == "true").ToListAsync();
                 return Ok(
                     new { status = "success", message = "Get all role successful.", data = role }
                 );
@@ -48,7 +48,10 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblRole = await _context.TblRoles.FindAsync(roleId);
+                var tblRole = await _context.TblRoles
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.RoleId == roleId)
+                    .FirstOrDefaultAsync();
 
                 if (tblRole == null)
                 {
@@ -135,13 +138,17 @@ namespace GasB360_server.Controllers
         {
             try
             {
-                var tblRole = await _context.TblRoles.FindAsync(roleId);
+                var tblRole = await _context.TblRoles
+                    .Where(x => x.Active == "true")
+                    .Where(x => x.RoleId == roleId)
+                    .FirstOrDefaultAsync();
                 if (tblRole == null)
                 {
                     return NotFound();
                 }
 
-                _context.TblRoles.Remove(tblRole);
+                tblRole.Active = "false";
+                _context.Entry(tblRole).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Delete role by id successful." });
@@ -152,6 +159,7 @@ namespace GasB360_server.Controllers
                 return BadRequest(new { status = "Failed", message = ex.Message });
             }
         }
+
         // Function To Check Whether The Role Already Exists or Not By Passing RoleId As Parameter
 
         private bool IsRoleExists(Guid roleId)
