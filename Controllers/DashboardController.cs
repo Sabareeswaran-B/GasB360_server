@@ -30,20 +30,20 @@ namespace GasB360_server.Controllers;
         public IActionResult GetAdminDashboard() {
             try
             {
-                SqlConnection con = new SqlConnection(_context.Database.GetConnectionString());
-                SqlCommand cmd = new SqlCommand();
-                SqlDataAdapter da = new SqlDataAdapter();
-                DataSet ds = new DataSet();
-                cmd = new SqlCommand("proc_admin_dashboard", con);
-                cmd.CommandType = CommandType.StoredProcedure;
-                da = new SqlDataAdapter(cmd);
-                da.Fill(ds);
-                con.Close();
+                SqlConnection connection = new SqlConnection(_context.Database.GetConnectionString());
+                SqlCommand command = new SqlCommand();
+                SqlDataAdapter dataAdapter = new SqlDataAdapter();
+                DataSet dataSet = new DataSet();
+                command = new SqlCommand("proc_admin_dashboard", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                dataAdapter = new SqlDataAdapter(command);
+                dataAdapter.Fill(dataSet);
+                connection.Close();
 
                 return Ok(new {
                     status="success",
                     message="Get admin dashboard successfull",
-                    data = ds.Tables
+                    data = dataSet.Tables
                 });
             }
             catch (System.Exception ex)
