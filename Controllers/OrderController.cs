@@ -273,9 +273,25 @@ namespace GasB360_server.Controllers
                 var Employee = await AssignEmployeeId();
                 tblOrder.EmployeeId = Employee.EmployeeId;
                 var customer = await _context.TblCustomers.FindAsync(tblOrder.CustomerId);
+                if (customer.CustomerConnection < 1)
+                {
+                    return BadRequest(
+                        new { status = "falied", message = "Get a connection first" }
+                    );
+                }
+                var orders = await _context.TblOrders
+                    .Where(x => x.CustomerId == customer.CustomerId)
+                    .OrderBy(x => x.OrderDate)
+                    .LastOrDefaultAsync();
+                var lastOrderDate = (DateTime)orders.OrderDate - DateTime.Now;
+                if (lastOrderDate.TotalDays <= 30)
+                {
+                    return BadRequest(
+                        new { status = "falied", message = "Already ordered for this month." }
+                    );
+                }
 
                 _context.TblOrders.Add(tblOrder);
-
                 await _context.SaveChangesAsync();
 
                 //Send Otp to the customer
