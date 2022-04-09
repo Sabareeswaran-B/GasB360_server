@@ -21,10 +21,17 @@ public class PaymentsController : Controller
     {
         try
         {
-            var orders = await Task.FromResult( _context.TblOrders
-                .Where(x => x.CustomerId == tblOrder.CustomerId)
-                .OrderBy(x => x.OrderDate)
-                .LastOrDefault());
+            var customer = await _context.TblCustomers.FindAsync(tblOrder.CustomerId);
+            if (customer!.CustomerConnection < 1)
+            {
+                return BadRequest(new { status = "falied", message = "Get a connection first" });
+            }
+            var orders = await Task.FromResult(
+                _context.TblOrders
+                    .Where(x => x.CustomerId == tblOrder.CustomerId)
+                    .OrderBy(x => x.OrderDate)
+                    .LastOrDefault()
+            );
             var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
             if (lastOrderDate.TotalDays <= 30)
             {
