@@ -1,5 +1,7 @@
+using GasB360_server.Helpers;
 using GasB360_server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 
@@ -9,11 +11,10 @@ public class PaymentsController : Controller
 {
     private readonly GasB360Context _context;
 
-    public PaymentsController(GasB360Context contex)
+    public PaymentsController(GasB360Context contex, IOptions<AppSettings> appSettings)
     {
         _context = contex;
-        StripeConfiguration.ApiKey =
-            "sk_test_51KlVTMSCjFUU5tTaAtk6bcQRG5SwsDL2tOUg1OOYD99j1IqzKYETrlOApY5kHsirh4VEqEBli3p89Gd0nYPEGBEn00rykos0QL";
+        StripeConfiguration.ApiKey = appSettings.Value.StripeApiKey;
     }
 
     [HttpPost("create-checkout-session")]
