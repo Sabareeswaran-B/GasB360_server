@@ -59,13 +59,9 @@ builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IAzureStorage, AzureStorage>();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDbContext<GasB360Context>(
-        options => options.UseSqlServer(builder.Configuration.GetConnectionString("GasB360Context"))
-    );
-}
+builder.Services.AddDbContext<GasB360Context>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("GasB360Context"))
+);
 
 Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(
@@ -110,6 +106,5 @@ app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseMiddleware<JwtHelper>();
 
 app.MapControllers();
-
 
 app.Run();
