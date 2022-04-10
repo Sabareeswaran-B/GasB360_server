@@ -33,12 +33,18 @@ public class PaymentsController : Controller
                     .OrderBy(x => x.OrderDate)
                     .LastOrDefault()
             );
-            var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
-            if (lastOrderDate.TotalDays <= 30)
+            if (orders != null)
             {
-                return BadRequest(
-                    new { status = "falied", message = "Already ordered for this month." }
-                );
+                if (orders.OrderDate != null)
+                {
+                    var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
+                    if (lastOrderDate.TotalDays <= 30)
+                    {
+                        return BadRequest(
+                            new { status = "falied", message = "Already ordered for this month." }
+                        );
+                    }
+                }
             }
             var UnitAmount = tblOrder.OrderTotalprice.ToString() + "00";
             var filledProduct = await _context.TblFilledProducts.FindAsync(
