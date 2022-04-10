@@ -141,9 +141,11 @@ namespace GasB360_server.Controllers
                     var fileName = ContentDispositionHeaderValue
                         .Parse(file.ContentDisposition)
                         .FileName.Trim('"');
+                    
+                    var date = DateTime.Now;
                     string fileURL = await _azureStorage.UploadAsync(
                         file.OpenReadStream(),
-                        fileName,
+                        fileName + date.ToString(),
                         file.ContentType
                     );
                     var customer = await _context.TblCustomers.FindAsync(customerId);
