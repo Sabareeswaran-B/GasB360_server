@@ -73,8 +73,8 @@ public class PaymentsController : Controller
                 },
                 Mode = "payment",
                 SuccessUrl =
-                    $"http://localhost:4200/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
-                CancelUrl = $"http://localhost:4200/orders/address",
+                    $"https://gasb360.herokuapp.com/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
+                CancelUrl = $"https://gasb360.herokuapp.com/orders/address",
             };
 
             var service = new SessionService();
