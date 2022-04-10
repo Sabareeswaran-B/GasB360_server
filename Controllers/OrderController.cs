@@ -246,8 +246,9 @@ namespace GasB360_server.Controllers
                         new { status = "success", message = "Delivery By Otp successfull.", }
                     );
                 }
-                else{
-                return BadRequest(new{status = "Failed",message="Wrong Otp"});
+                else
+                {
+                    return BadRequest(new { status = "Failed", message = "Wrong Otp" });
                 }
             }
             catch (System.Exception ex)
@@ -282,12 +283,22 @@ namespace GasB360_server.Controllers
                     .Where(x => x.CustomerId == customer.CustomerId)
                     .OrderBy(x => x.OrderDate)
                     .LastOrDefaultAsync();
-                var lastOrderDate = (DateTime)orders.OrderDate - DateTime.Now;
-                if (lastOrderDate.TotalDays <= 30)
+                if (orders != null)
                 {
-                    return BadRequest(
-                        new { status = "falied", message = "Already ordered for this month." }
-                    );
+                    if (orders.OrderDate != null)
+                    {
+                        var lastOrderDate = (DateTime)orders.OrderDate - DateTime.Now;
+                        if (lastOrderDate.TotalDays <= 30)
+                        {
+                            return BadRequest(
+                                new
+                                {
+                                    status = "falied",
+                                    message = "Already ordered for this month."
+                                }
+                            );
+                        }
+                    }
                 }
 
                 _context.TblOrders.Add(tblOrder);
