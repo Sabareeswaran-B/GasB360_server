@@ -96,8 +96,8 @@ namespace GasB360_server.Controllers
                     .Where(a => a.Order.EmployeeId == employeeId)
                     .Include(x => x.Order.Address)
                     .Include(x => x.Order.Customer)
-                    .Include(x => x.Order.Employee)
-                    .Include(x => x.Order.FilledProduct)
+                    // .Include(x => x.Order.Employee)
+                    // .Include(x => x.Order.FilledProduct)
                     .Include(x => x.Order.FilledProduct.ProductCategory)
                     .ToListAsync();
 
