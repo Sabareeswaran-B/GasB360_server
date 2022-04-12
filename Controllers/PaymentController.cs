@@ -17,6 +17,7 @@ public class PaymentsController : Controller
         StripeConfiguration.ApiKey = appSettings.Value.StripeApiKey;
     }
 
+    [Authorize]
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession([FromBody] TblOrder tblOrder)
     {
