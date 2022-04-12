@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace GasB360_server.Models
 {
@@ -25,6 +26,7 @@ namespace GasB360_server.Models
         public virtual TblCustomer? Customer { get; set; }
         public virtual TblEmployee? Employee { get; set; }
         public virtual TblFilledProduct? FilledProduct { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TblDelivery>? TblDeliveries { get; set; }
     }
 }

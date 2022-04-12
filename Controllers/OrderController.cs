@@ -136,7 +136,7 @@ namespace GasB360_server.Controllers
                     .Skip(start)
                     .Take(3)
                     .Include(a => a.Address)
-                    .Include(a => a.Customer)
+                    // .Include(a => a.Customer)
                     .Include(a => a.FilledProduct)
                     .Include(a => a.FilledProduct.ProductCategory)
                     .ToListAsync();
@@ -167,7 +167,7 @@ namespace GasB360_server.Controllers
                     .Where(a => a.EmployeeId == employeeId)
                     .Include(x => x.Address)
                     .Include(x => x.Customer)
-                    .Include(x => x.Employee)
+                    // .Include(x => x.Employee)
                     .Include(x => x.FilledProduct)
                     .Include(x => x.FilledProduct.ProductCategory)
                     .ToListAsync();
