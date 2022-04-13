@@ -13,7 +13,6 @@ namespace GasB360_server.Models
         public Guid? BranchId { get; set; }
 
         public virtual TblBranch? Branch { get; set; }
-        [JsonIgnore]
         public virtual TblProductCategory? ProductCategory { get; set; }
     }
 }
