@@ -138,12 +138,15 @@ namespace GasB360_server.Controllers
                 var file = formCollection.Files.First();
                 if (file.Length > 0)
                 {
-                    var fileName = ContentDispositionHeaderValue
-                        .Parse(file.ContentDisposition)
-                        .FileName.Trim('"');
+                    // var fileName = ContentDispositionHeaderValue
+                    //     .Parse(file.ContentDisposition)
+                    //     .FileName.Trim('"');
+                    
+                    // var date = DateTime.Now;
                     string fileURL = await _azureStorage.UploadAsync(
                         file.OpenReadStream(),
-                        fileName,
+                        // fileName + date.ToString(),
+                        Guid.NewGuid().ToString(),
                         file.ContentType
                     );
                     var customer = await _context.TblCustomers.FindAsync(customerId);

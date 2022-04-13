@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace GasB360_server.Models
 {
@@ -20,7 +21,9 @@ namespace GasB360_server.Models
         public string? Password { get; set; }
 
         public virtual TblRole? Role { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TblBranch>? TblBranches { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TblOrder>? TblOrders { get; set; }
     }
 }

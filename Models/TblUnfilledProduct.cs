@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace GasB360_server.Models
 {
@@ -12,6 +13,7 @@ namespace GasB360_server.Models
         public Guid? BranchId { get; set; }
 
         public virtual TblBranch? Branch { get; set; }
+        [JsonIgnore]
         public virtual TblProductCategory? ProductCategory { get; set; }
     }
 }

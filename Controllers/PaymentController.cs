@@ -17,6 +17,7 @@ public class PaymentsController : Controller
         StripeConfiguration.ApiKey = appSettings.Value.StripeApiKey;
     }
 
+    [Authorize]
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession([FromBody] TblOrder tblOrder)
     {
@@ -33,12 +34,18 @@ public class PaymentsController : Controller
                     .OrderBy(x => x.OrderDate)
                     .LastOrDefault()
             );
-            var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
-            if (lastOrderDate.TotalDays <= 30)
+            if (orders != null)
             {
-                return BadRequest(
-                    new { status = "falied", message = "Already ordered for this month." }
-                );
+                if (orders.OrderDate != null)
+                {
+                    var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
+                    if (lastOrderDate.TotalDays <= 30)
+                    {
+                        return BadRequest(
+                            new { status = "falied", message = "Already ordered for this month." }
+                        );
+                    }
+                }
             }
             var UnitAmount = tblOrder.OrderTotalprice.ToString() + "00";
             var filledProduct = await _context.TblFilledProducts.FindAsync(
@@ -67,8 +74,8 @@ public class PaymentsController : Controller
                 },
                 Mode = "payment",
                 SuccessUrl =
-                    $"http://localhost:4200/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
-                CancelUrl = $"http://localhost:4200/orders/address",
+                    $"https://gasb360webapp.azurewebsites.net/customer/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
+                CancelUrl = $"https://gasb360webapp.azurewebsites.net/customer/orders/address",
             };
 
             var service = new SessionService();

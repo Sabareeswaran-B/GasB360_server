@@ -40,7 +40,6 @@ public class DashBoardController : ControllerBase
             dataAdapter = new SqlDataAdapter(command);
             dataAdapter.Fill(dataSet);
             connection.Close();
-
             return Ok(
                 new
                 {
