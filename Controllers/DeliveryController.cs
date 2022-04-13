@@ -93,8 +93,8 @@ namespace GasB360_server.Controllers
                 var deliveries = await _context.TblDeliveries
                     .Where(a => a.Active == "true")
                     .Include(a => a.Order)
-                    .Include(x => x.Order.Customer)
                     .Where(a => a.Order.EmployeeId == employeeId)
+                    .Include(x => x.Order.Customer)
                     .Include(x => x.Order.Address)
                     // .Include(x => x.Order.Employee)
                     // .Include(x => x.Order.FilledProduct)

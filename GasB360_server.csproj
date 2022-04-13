@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.11.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="MailKit" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
@@ -19,9 +18,7 @@
     <PackageReference Include="Microsoft.VisualStudio.web.codegeneration.Design" Version="6.0.2" />
     <PackageReference Include="Mimekit" Version="3.2.0" />
     <PackageReference Include="Sentry.AspNetCore" Version="3.15.0" />
-    <PackageReference Include="Stripe.net" Version="39.103.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-    <PackageReference Include="system.data.sqlclient" Version="4.8.3" />
   </ItemGroup>
 
 </Project>
