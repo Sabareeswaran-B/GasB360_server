@@ -87,11 +87,11 @@ var app = builder.Build();
 app.UseSentryTracing();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+// if (app.Environment.IsDevelopment())
+// {
+// }
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseSentryTracing();
 
