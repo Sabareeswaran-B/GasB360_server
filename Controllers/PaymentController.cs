@@ -19,10 +19,12 @@ public class PaymentsController : Controller
 
     [Authorize]
     [HttpPost("create-checkout-session")]
-    public async Task<IActionResult> CreateCheckoutSession([FromBody] TblOrder tblOrder)
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] RedirectUrl<TblOrder> tblOrderWithUrl)
     {
         try
         {
+            var tblOrder = tblOrderWithUrl.data!;
+            var originUrl = tblOrderWithUrl.Origin;
             var customer = await _context.TblCustomers.FindAsync(tblOrder.CustomerId);
             if (customer!.CustomerConnection < 1)
             {
@@ -38,7 +40,8 @@ public class PaymentsController : Controller
             {
                 if (orders.OrderDate != null)
                 {
-                    var lastOrderDate = (DateTime)orders!.OrderDate! - DateTime.Now;
+                    var lastOrderDate =  DateTime.Now - (DateTime)orders!.OrderDate!;
+                    Console.WriteLine(lastOrderDate.TotalDays.ToString());
                     if (lastOrderDate.TotalDays <= 30)
                     {
                         return BadRequest(
@@ -74,8 +77,8 @@ public class PaymentsController : Controller
                 },
                 Mode = "payment",
                 SuccessUrl =
-                    $"http://gasb360.me/customer/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
-                CancelUrl = $"http://gasb360.me/customer/orders/address",
+                    $"{originUrl}/customer/order?customerId={tblOrder.CustomerId}&filledProductId={tblOrder.FilledProductId}&addressId={tblOrder.AddressId}&orderTotalprice={tblOrder.OrderTotalprice}",
+                CancelUrl = $"{originUrl}/customer/order/address",
             };
 
             var service = new SessionService();

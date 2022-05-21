@@ -87,6 +87,7 @@ namespace GasB360_server.Controllers
             {
                 var customerOrders = await _context.TblOrders
                     .Where(a => a.Active == "true")
+                    .OrderByDescending(x => x.OrderDate)
                     .Where(a => a.CustomerId == customerId)
                     .Include(a => a.Address)
                     .Include(a => a.Customer)
@@ -132,6 +133,8 @@ namespace GasB360_server.Controllers
                 var start = (pageNo - 1) * 3;
                 var count = orders.Count();
                 var customerOrders = await _context.TblOrders
+                    .Where(a => a.Active == "true")
+                    .OrderByDescending(x => x.OrderDate)
                     .Where(x => x.CustomerId == customerId)
                     .Skip(start)
                     .Take(3)
@@ -286,7 +289,7 @@ namespace GasB360_server.Controllers
                 {
                     if (orders.OrderDate != null)
                     {
-                        var lastOrderDate = (DateTime)orders.OrderDate - DateTime.Now;
+                        var lastOrderDate = DateTime.Now - (DateTime)orders.OrderDate;
                         if (lastOrderDate.TotalDays <= 30)
                         {
                             return BadRequest(
